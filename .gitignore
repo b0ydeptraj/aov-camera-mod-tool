@@ -1,0 +1,8 @@
+﻿__pycache__/
+build/
+dist/
+wheels/
+*.spec
+*.pyc
+*.bak_*
+CommonActions_patched.pkg.bytes
