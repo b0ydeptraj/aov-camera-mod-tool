@@ -25,7 +25,7 @@ TARGET_ENTRIES = (
 
 PKG_MAGIC = b"\x22\x4a\x00\xef"
 CAMERA_TRACK_RE = re.compile(
-    r"\s*<Track\s+trackName=\"SetCameraHeightDuration0\"\b.*?</Track>",
+    r"\s*<Track\s+trackName=\"SetCameraHeightDuration0\"[^>]*>.*?</Track>",
     re.DOTALL,
 )
 
