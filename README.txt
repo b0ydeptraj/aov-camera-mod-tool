@@ -13,7 +13,7 @@ Mức camera trong GUI:
 
 Cách dùng GUI:
 1. Mở Mo_Giao_Dien.vbs để không hiện CMD đen.
-2. Chọn CommonActions.pkg.bytes hoặc chọn thư mục Ages/Resources.
+2. Chọn CommonActions.pkg.bytes hoặc file bị đổi tên kiểu CommonActions.pkg_1.bytes, hoặc chọn thư mục Ages/Resources.
 3. Chọn dictionary. Bình thường dùng zstd_dict.bin mặc định đi kèm tool.
 4. Chọn nơi lưu file đã mod.
 5. Chọn mức camera 10%, 20% hoặc 40%, rồi bấm Mod ngay.

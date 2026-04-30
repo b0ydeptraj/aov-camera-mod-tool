@@ -388,7 +388,7 @@ class CameraPatchGui:
     def _choose_file(self) -> None:
         path = filedialog.askopenfilename(
             title="Chọn CommonActions.pkg.bytes",
-            filetypes=[("CommonActions", "CommonActions.pkg.bytes"), ("Tất cả file", "*.*")],
+            filetypes=[("CommonActions", "CommonActions*.bytes"), ("Tất cả file", "*.*")],
         )
         if path:
             self.input_path.set(path)

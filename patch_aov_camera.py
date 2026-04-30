@@ -52,8 +52,9 @@ def build_camera_track(height_rate: float) -> str:
 
 def resolve_common_actions(path: Path) -> Path:
     if path.is_file():
-        if path.name != "CommonActions.pkg.bytes":
-            raise SystemExit(f"Input file is not CommonActions.pkg.bytes: {path}")
+        name = path.name.lower()
+        if not (name == "commonactions.pkg.bytes" or (name.startswith("commonactions") and name.endswith(".bytes"))):
+            raise SystemExit(f"Input file is not CommonActions*.bytes: {path}")
         return path
 
     candidates = [
