@@ -16,7 +16,7 @@ Mở tab **Releases** của repo này và tải `Mod_Camera_Lien_Quan_v1.0.0.zip
 
 1. Mở `Mod_Camera_Lien_Quan.exe`.
 2. Chọn `CommonActions.pkg.bytes` hoặc chọn thư mục `Ages` / `Resources`.
-3. Chọn dictionary, bình thường dùng mặc định trong tool.
+3. Chọn dictionary, bình thường dùng mặc định trong tool. Nếu chọn nhầm `bytesDict.bytes` của game, tool sẽ tự thử lại bằng dictionary mặc định.
 4. Chọn nơi lưu file đã mod.
 5. Chọn mức camera rồi bấm `Mod ngay`.
 

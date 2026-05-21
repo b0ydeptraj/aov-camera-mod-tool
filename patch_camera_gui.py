@@ -527,15 +527,42 @@ class CameraPatchGui:
             else:
                 final_output = output_path.expanduser().resolve() if output_path else pkg_path.with_name("CommonActions_patched.pkg.bytes")
                 backup = False
-            with contextlib.redirect_stdout(stream):
-                patch_package(
-                    pkg_path=pkg_path,
-                    dict_path=dict_path.expanduser().resolve(),
-                    height_rate=height,
-                    level=17,
-                    backup=backup,
-                    output_path=final_output,
+            selected_dict = dict_path.expanduser().resolve()
+            try:
+                with contextlib.redirect_stdout(stream):
+                    patch_package(
+                        pkg_path=pkg_path,
+                        dict_path=selected_dict,
+                        height_rate=height,
+                        level=17,
+                        backup=backup,
+                        output_path=final_output,
+                    )
+            except BaseException as first_exc:
+                first_output = stream.getvalue()
+                default_dict = DEFAULT_DICT.expanduser().resolve()
+                looks_like_dict_error = (
+                    "dictionary" in str(first_exc).lower()
+                    or "dictionary" in first_output.lower()
+                    or "decompression error" in str(first_exc).lower()
                 )
+                if selected_dict == default_dict or not default_dict.exists() or not looks_like_dict_error:
+                    raise
+
+                retry_stream = io.StringIO()
+                with contextlib.redirect_stdout(retry_stream):
+                    patch_package(
+                        pkg_path=pkg_path,
+                        dict_path=default_dict,
+                        height_rate=height,
+                        level=17,
+                        backup=backup,
+                        output_path=final_output,
+                    )
+                stream = io.StringIO()
+                stream.write(first_output)
+                stream.write("\nDictionary bạn chọn không dùng trực tiếp được. Tool đã tự dùng dictionary mặc định đi kèm và mod lại thành công.\n")
+                stream.write(retry_stream.getvalue())
             result = "\n".join(line for line in stream.getvalue().splitlines() if not line.startswith("heightRate="))
             result += f"\nMức camera: {camera_percent}\n"
             self.queue.put(("ok", result))
