@@ -155,7 +155,7 @@ class CameraPatchGui:
 
         ttk.Label(sidebar, text="Quy trình", style="SidebarTitle.TLabel").pack(anchor="w", pady=(0, 10))
         self._sidebar_step(sidebar, "1", "Chọn CommonActions", "File gốc cần mod camera")
-        self._sidebar_step(sidebar, "2", "Chọn dictionary", "Dùng mặc định hoặc bytesDict mới")
+        self._sidebar_step(sidebar, "2", "Dictionary zstd", "Để mặc định nếu chưa rõ")
         self._sidebar_step(sidebar, "3", "Chọn nơi lưu", "Tool tạo file đã mod riêng")
         self._sidebar_step(sidebar, "4", "Mod ngay", "Bấm một lần rồi chờ kết quả")
 
@@ -187,7 +187,7 @@ class CameraPatchGui:
         ttk.Label(top, text="Bộ công cụ mod camera", style="PageTitle.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(
             top,
-            text="Chọn file mới nhất, chọn dictionary nếu bản update đổi, rồi xuất CommonActions đã mod.",
+            text="Chọn file mới nhất, để dictionary mặc định nếu CommonActions vẫn cùng dict id, rồi xuất file đã mod.",
             style="PageSub.TLabel",
         ).grid(row=1, column=0, sticky="w", pady=(6, 0))
 
@@ -274,24 +274,24 @@ class CameraPatchGui:
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
 
     def _build_dict_card(self, parent: ttk.Frame) -> None:
-        card = self._card(parent, "2", "Dictionary zstd", "Bình thường dùng dictionary tích hợp sẵn. Khi game update đổi dictionary thì chọn file mới tại đây.")
-        ttk.Label(card, text="Đường dẫn dictionary", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
+        card = self._card(parent, "2", "Dictionary zstd", "Đây là raw zstd dictionary mà tool dùng để giải nén XML. Bình thường cứ bấm Dùng mặc định.")
+        ttk.Label(card, text="Đường dẫn raw zstd dictionary", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
         ttk.Entry(card, textvariable=self.dict_path, style="Path.TEntry").grid(row=2, column=0, sticky="ew", pady=(7, 10))
 
         row = ttk.Frame(card, style="Card.TFrame")
         row.grid(row=3, column=0, sticky="ew")
-        ttk.Button(row, text="Chọn dictionary", style="Ghost.TButton", command=self._choose_dict).grid(row=0, column=0, sticky="w")
+        ttk.Button(row, text="Chọn raw dictionary", style="Ghost.TButton", command=self._choose_dict).grid(row=0, column=0, sticky="w")
         ttk.Button(row, text="Dùng mặc định", style="Small.TButton", command=self._use_default_dict).grid(row=0, column=1, sticky="w", padx=(10, 0))
 
         ttk.Label(
             card,
-            text=r"Lấy bytesDict trong game ở đây: Documents\Resources\1.62.1\Config\bytesDict.bytes",
+            text="Không cần chọn bytesDict.bytes nếu bạn không có raw dictionary. File bytesDict.bytes của game là file bọc riêng, không phải raw zstd dictionary.",
             style="Hint.TLabel",
             wraplength=840,
         ).grid(row=4, column=0, sticky="w", pady=(11, 0))
         ttk.Label(
             card,
-            text="Lưu ý: bytesDict.bytes của game có thể là file bọc riêng; nếu không chạy được thì dùng zstd_dict.bin đi kèm tool.",
+            text=r"Khi game update thật sự đổi dictionary, gửi CommonActions.pkg.bytes + Documents\Resources\<version>\Config\bytesDict.bytes để cập nhật tool.",
             style="Hint.TLabel",
             wraplength=840,
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
@@ -404,9 +404,9 @@ class CameraPatchGui:
 
     def _choose_dict(self) -> None:
         path = filedialog.askopenfilename(
-            title="Chọn dictionary zstd",
+            title="Chọn raw dictionary zstd",
             filetypes=[
-                ("Dictionary", "*.bin *.bytes"),
+                ("Raw zstd dictionary", "*.bin *.bytes"),
                 ("zstd_dict.bin", "zstd_dict.bin"),
                 ("bytesDict.bytes", "bytesDict.bytes"),
                 ("Tất cả file", "*.*"),
@@ -414,11 +414,11 @@ class CameraPatchGui:
         )
         if path:
             self.dict_path.set(path)
-            self._set_status("Đã chọn dictionary", "Nếu dictionary đúng, tool sẽ giải nén XML được")
+            self._set_status("Đã chọn dictionary", "Chỉ chọn file này nếu đó là raw zstd dictionary")
 
     def _use_default_dict(self) -> None:
         self.dict_path.set(str(DEFAULT_DICT))
-        self._set_status("Dùng dictionary mặc định", "Tool đang dùng zstd_dict.bin đi kèm")
+        self._set_status("Dùng dictionary mặc định", "Tool đang dùng raw zstd_dict.bin đi kèm")
 
     def _guess_output_path(self) -> Path | None:
         raw_path = self.input_path.get().strip().strip('"')
@@ -478,7 +478,7 @@ class CameraPatchGui:
 
         raw_dict = self.dict_path.get().strip().strip('"')
         if not raw_dict:
-            messagebox.showwarning("Thiếu dictionary", "Hãy chọn zstd_dict.bin hoặc dùng dictionary mặc định.")
+            messagebox.showwarning("Thiếu dictionary", "Hãy bấm Dùng mặc định hoặc chọn raw zstd_dict.bin.")
             return
 
         raw_output = self.output_path.get().strip().strip('"')
@@ -561,7 +561,7 @@ class CameraPatchGui:
                     )
                 stream = io.StringIO()
                 stream.write(first_output)
-                stream.write("\nDictionary bạn chọn không dùng trực tiếp được. Tool đã tự dùng dictionary mặc định đi kèm và mod lại thành công.\n")
+                stream.write("\nDictionary bạn chọn không phải raw zstd dictionary dùng trực tiếp được. Tool đã tự dùng dictionary mặc định đi kèm và mod lại thành công.\n")
                 stream.write(retry_stream.getvalue())
             result = "\n".join(line for line in stream.getvalue().splitlines() if not line.startswith("heightRate="))
             result += f"\nMức camera: {camera_percent}\n"

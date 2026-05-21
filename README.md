@@ -4,7 +4,7 @@ Tool GUI Windows để vá `CommonActions.pkg.bytes` và chỉnh camera xa hơn.
 
 ## Tải bản exe
 
-Mở tab **Releases** của repo này và tải `Mod_Camera_Lien_Quan_v1.0.0.zip`.
+Mở tab **Releases** của repo này và tải bản mới nhất.
 
 ## Mức camera trong GUI
 
@@ -16,7 +16,7 @@ Mở tab **Releases** của repo này và tải `Mod_Camera_Lien_Quan_v1.0.0.zip
 
 1. Mở `Mod_Camera_Lien_Quan.exe`.
 2. Chọn `CommonActions.pkg.bytes` hoặc chọn thư mục `Ages` / `Resources`.
-3. Chọn dictionary, bình thường dùng mặc định trong tool. Nếu chọn nhầm `bytesDict.bytes` của game, tool sẽ tự thử lại bằng dictionary mặc định.
+3. Để dictionary mặc định. Ô này cần raw zstd dictionary, còn `bytesDict.bytes` của game là file bọc riêng.
 4. Chọn nơi lưu file đã mod.
 5. Chọn mức camera rồi bấm `Mod ngay`.
 
@@ -33,6 +33,8 @@ bytesDict khi game update đổi dictionary:
 ```text
 Documents\Resources\1.62.1\Config\bytesDict.bytes
 ```
+
+Lưu ý: `bytesDict.bytes` dùng để phân tích/cập nhật tool khi game đổi dictionary, không phải raw dictionary để chọn trực tiếp trong zstd.
 
 ## Source
 
