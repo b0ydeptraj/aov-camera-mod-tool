@@ -60,6 +60,7 @@ class CameraPatchGui:
 
         self.input_path = StringVar()
         self.game_dict_path = StringVar()
+        self.game_assets_path = StringVar()
         self.dict_path = StringVar(value=str(DEFAULT_DICT))
         self.output_path = StringVar()
         self.camera_level = StringVar(value="20%")
@@ -156,7 +157,7 @@ class CameraPatchGui:
 
         ttk.Label(sidebar, text="Quy trình", style="SidebarTitle.TLabel").pack(anchor="w", pady=(0, 10))
         self._sidebar_step(sidebar, "1", "Chọn CommonActions", "File gốc cần mod camera")
-        self._sidebar_step(sidebar, "2", "Dictionary zstd", "Để mặc định nếu chưa rõ")
+        self._sidebar_step(sidebar, "2", "Dictionary zstd", "Chọn bytesDict và kgvn.app khi game update")
         self._sidebar_step(sidebar, "3", "Chọn nơi lưu", "Tool tạo file đã mod riêng")
         self._sidebar_step(sidebar, "4", "Mod ngay", "Bấm một lần rồi chờ kết quả")
 
@@ -188,7 +189,7 @@ class CameraPatchGui:
         ttk.Label(top, text="Bộ công cụ mod camera", style="PageTitle.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(
             top,
-            text="Chọn CommonActions mới nhất. Nếu update đổi dictionary, chọn thêm bytesDict.bytes để tool kiểm tra và không dùng nhầm bản cũ.",
+            text="Chọn CommonActions mới nhất. Nếu update đổi dictionary, chọn thêm bytesDict.bytes và kgvn.app/resources.assets để tool tự trích raw dictionary mới.",
             style="PageSub.TLabel",
         ).grid(row=1, column=0, sticky="w", pady=(6, 0))
 
@@ -275,7 +276,7 @@ class CameraPatchGui:
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
 
     def _build_dict_card(self, parent: ttk.Frame) -> None:
-        card = self._card(parent, "2", "Dictionary bản game", "Có thể chọn bytesDict.bytes của bản update để tool kiểm tra. Raw zstd dictionary vẫn là file dùng để giải nén XML.")
+        card = self._card(parent, "2", "Dictionary bản game", "Khi game update, chọn bytesDict.bytes và kgvn.app/resources.assets để tool tự trích raw zstd dictionary đúng bản.")
         ttk.Label(card, text="bytesDict.bytes trong game khi có update", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
         ttk.Entry(card, textvariable=self.game_dict_path, style="Path.TEntry").grid(row=2, column=0, sticky="ew", pady=(7, 10))
 
@@ -292,25 +293,41 @@ class CameraPatchGui:
         ).grid(row=4, column=0, sticky="w", pady=(11, 0))
         ttk.Label(
             card,
-            text="Tool sẽ đọc CommonActions cần dict id nào. Nếu dictionary mặc định không khớp, tool dừng lại, không dùng bản cũ.",
+            text="Tool dùng bytesDict để đọc kích thước raw dictionary và kiểm tra đúng bản update.",
             style="Hint.TLabel",
             wraplength=840,
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
 
-        ttk.Label(card, text="Raw zstd dictionary đang dùng để vá", style="FieldLabel.TLabel").grid(row=6, column=0, sticky="w", pady=(13, 0))
-        ttk.Entry(card, textvariable=self.dict_path, style="Path.TEntry").grid(row=7, column=0, sticky="ew", pady=(7, 10))
+        ttk.Label(card, text="kgvn.app hoặc resources.assets để tự trích dictionary mới", style="FieldLabel.TLabel").grid(row=6, column=0, sticky="w", pady=(13, 0))
+        ttk.Entry(card, textvariable=self.game_assets_path, style="Path.TEntry").grid(row=7, column=0, sticky="ew", pady=(7, 10))
+
+        assets_row = ttk.Frame(card, style="Card.TFrame")
+        assets_row.grid(row=8, column=0, sticky="ew")
+        ttk.Button(assets_row, text="Chọn kgvn.app", style="Ghost.TButton", command=self._choose_game_app).grid(row=0, column=0, sticky="w")
+        ttk.Button(assets_row, text="Chọn resources.assets", style="Ghost.TButton", command=self._choose_game_assets_file).grid(row=0, column=1, sticky="w", padx=(10, 0))
+        ttk.Button(assets_row, text="Bỏ chọn app", style="Small.TButton", command=self._clear_game_assets).grid(row=0, column=2, sticky="w", padx=(10, 0))
+
+        ttk.Label(
+            card,
+            text=r"Lấy trong IPA/app ở đây: kgvn.app\Data\resources.assets. Nếu chọn cả thư mục kgvn.app, tool tự tìm file này.",
+            style="Hint.TLabel",
+            wraplength=840,
+        ).grid(row=9, column=0, sticky="w", pady=(11, 0))
+
+        ttk.Label(card, text="Raw zstd dictionary dự phòng", style="FieldLabel.TLabel").grid(row=10, column=0, sticky="w", pady=(13, 0))
+        ttk.Entry(card, textvariable=self.dict_path, style="Path.TEntry").grid(row=11, column=0, sticky="ew", pady=(7, 10))
 
         raw_row = ttk.Frame(card, style="Card.TFrame")
-        raw_row.grid(row=8, column=0, sticky="ew")
+        raw_row.grid(row=12, column=0, sticky="ew")
         ttk.Button(raw_row, text="Chọn raw dictionary", style="Ghost.TButton", command=self._choose_dict).grid(row=0, column=0, sticky="w")
         ttk.Button(raw_row, text="Dùng mặc định", style="Small.TButton", command=self._use_default_dict).grid(row=0, column=1, sticky="w", padx=(10, 0))
 
         ttk.Label(
             card,
-            text="Lưu ý: bytesDict.bytes của game thường là file bọc riêng/AES, không phải raw zstd dictionary. Nếu update đổi thuật toán, cần cập nhật extractor trước khi vá.",
+            text="Lưu ý: bytesDict.bytes là file bọc/AES, không dùng trực tiếp làm raw dictionary. Nếu có kgvn.app/resources.assets, tool sẽ tự trích raw dictionary từ đó.",
             style="Hint.TLabel",
             wraplength=840,
-        ).grid(row=9, column=0, sticky="w", pady=(11, 0))
+        ).grid(row=13, column=0, sticky="w", pady=(11, 0))
 
     def _build_output_card(self, parent: ttk.Frame) -> None:
         card = self._card(parent, "3", "Nơi lưu file đã mod", "Tool có thể tạo file mới để bạn test, không cần ghi đè file gốc.")
@@ -434,6 +451,28 @@ class CameraPatchGui:
         self.game_dict_path.set("")
         self._set_status("Đã bỏ bytesDict", "Nếu CommonActions vẫn cùng dict id thì dùng mặc định")
 
+    def _choose_game_app(self) -> None:
+        path = filedialog.askdirectory(title="Chọn thư mục kgvn.app")
+        if path:
+            self.game_assets_path.set(path)
+            self._set_status("Đã chọn kgvn.app", "Tool sẽ tự tìm Data\\resources.assets để trích dictionary")
+
+    def _choose_game_assets_file(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Chọn resources.assets trong kgvn.app",
+            filetypes=[
+                ("resources.assets", "resources.assets"),
+                ("Tất cả file", "*.*"),
+            ],
+        )
+        if path:
+            self.game_assets_path.set(path)
+            self._set_status("Đã chọn resources.assets", "Tool sẽ quét raw zstd dictionary trong file này")
+
+    def _clear_game_assets(self) -> None:
+        self.game_assets_path.set("")
+        self._set_status("Đã bỏ kgvn.app", "Tool sẽ dùng raw dictionary dự phòng nếu dict id khớp")
+
     def _choose_dict(self) -> None:
         path = filedialog.askopenfilename(
             title="Chọn raw dictionary zstd",
@@ -507,12 +546,16 @@ class CameraPatchGui:
             messagebox.showwarning("Sai độ xa", "Hãy chọn mức camera: 10%, 20% hoặc 40%.")
             return
 
+        raw_game_dict = self.game_dict_path.get().strip().strip('"')
+        raw_game_assets = self.game_assets_path.get().strip().strip('"')
         raw_dict = self.dict_path.get().strip().strip('"')
-        if not raw_dict:
-            messagebox.showwarning("Thiếu dictionary", "Hãy bấm Dùng mặc định hoặc chọn raw zstd_dict.bin.")
+        if raw_game_assets and not raw_game_dict:
+            messagebox.showwarning("Thiếu bytesDict", "Muốn tự trích dictionary từ kgvn.app thì hãy chọn thêm bytesDict.bytes của cùng bản update.")
+            return
+        if not raw_game_assets and not raw_dict:
+            messagebox.showwarning("Thiếu dictionary", "Hãy chọn kgvn.app/resources.assets hoặc bấm Dùng mặc định/chọn raw zstd_dict.bin.")
             return
 
-        raw_game_dict = self.game_dict_path.get().strip().strip('"')
         raw_output = self.output_path.get().strip().strip('"')
         output = Path(raw_output) if raw_output else self._guess_output_path()
         overwrite_source = self.make_backup.get()
@@ -536,7 +579,16 @@ class CameraPatchGui:
 
         thread = threading.Thread(
             target=self._patch_worker,
-            args=(Path(raw_path), Path(raw_dict), Path(raw_game_dict) if raw_game_dict else None, output, height, camera_percent, overwrite_source),
+            args=(
+                Path(raw_path),
+                Path(raw_dict) if raw_dict else None,
+                Path(raw_game_dict) if raw_game_dict else None,
+                Path(raw_game_assets) if raw_game_assets else None,
+                output,
+                height,
+                camera_percent,
+                overwrite_source,
+            ),
             daemon=True,
         )
         thread.start()
@@ -544,8 +596,9 @@ class CameraPatchGui:
     def _patch_worker(
         self,
         input_path: Path,
-        dict_path: Path,
+        dict_path: Path | None,
         game_dict_path: Path | None,
+        game_assets_path: Path | None,
         output_path: Path | None,
         height: float,
         camera_percent: str,
@@ -579,6 +632,32 @@ class CameraPatchGui:
                         )
                 else:
                     raise FileNotFoundError(f"Không tìm thấy bytesDict.bytes: {game_dict}")
+
+            if game_assets_path is not None:
+                assets = game_assets_path.expanduser().resolve()
+                stream.write(f"kgvn.app/resources.assets: {assets}\n")
+                if not assets.exists():
+                    raise FileNotFoundError(f"Không tìm thấy kgvn.app/resources.assets: {assets}")
+                if game_dict_path is None:
+                    raise FileNotFoundError("Thiếu bytesDict.bytes để đọc kích thước raw dictionary.")
+                with contextlib.redirect_stdout(stream):
+                    patch_package(
+                        pkg_path=pkg_path,
+                        dict_path=None,
+                        height_rate=height,
+                        level=17,
+                        backup=backup,
+                        output_path=final_output,
+                        game_assets_path=assets,
+                        bytesdict_path=game_dict_path.expanduser().resolve(),
+                    )
+                result = "\n".join(line for line in stream.getvalue().splitlines() if not line.startswith("heightRate="))
+                result += f"\nMức camera: {camera_percent}\n"
+                self.queue.put(("ok", result))
+                return
+
+            if dict_path is None:
+                raise FileNotFoundError("Thiếu raw zstd dictionary hoặc kgvn.app/resources.assets.")
             selected_dict = dict_path.expanduser().resolve()
             try:
                 with contextlib.redirect_stdout(stream):
@@ -620,7 +699,7 @@ class CameraPatchGui:
                     fail_stream.write(
                         "Kết luận: bản CommonActions này cần raw dictionary mới. "
                         "Tool đã dừng để tránh dùng dictionary cũ làm hỏng file. "
-                        r"Hãy gửi CommonActions.pkg.bytes + Documents\Resources\<version>\Config\bytesDict.bytes để cập nhật extractor/tool."
+                        r"Hãy chọn CommonActions.pkg.bytes + Documents\Resources\<version>\Config\bytesDict.bytes + kgvn.app\Data\resources.assets."
                         "\n"
                     )
                     self.queue.put(("error", fail_stream.getvalue()))

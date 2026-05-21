@@ -4,6 +4,9 @@ dist/
 build_v105/
 dist_v105/
 spec_v105/
+build_v*/
+dist_v*/
+spec_v*/
 wheels/
 *.spec
 *.pyc
