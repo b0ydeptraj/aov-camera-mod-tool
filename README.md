@@ -17,7 +17,7 @@ Mở tab **Releases** của repo này và tải bản mới nhất.
 1. Mở `Mod_Camera_Lien_Quan.exe`.
 2. Chọn `CommonActions.pkg.bytes` hoặc chọn thư mục `Ages` / `Resources`.
 3. Chọn `kgvn.app` hoặc `kgvn.app\Data\resources.assets` của đúng bản game update.
-4. Chọn nơi lưu file đã mod. File kết quả nên giữ đúng tên `CommonActions.pkg.bytes`.
+4. Chọn thư mục lưu file đã mod. Tool luôn tạo file kết quả đúng tên `CommonActions.pkg.bytes`.
 5. Chọn mức camera rồi bấm `Mod ngay`.
 
 Tool tự đọc `dict id` trong `CommonActions.pkg.bytes`, quét `resources.assets`, dò đúng raw zstd dictionary và verify bằng XML bên trong package. Tool không dùng `zstd_dict.bin` mặc định cũ.

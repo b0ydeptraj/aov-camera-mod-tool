@@ -62,6 +62,22 @@ class DictionaryExtractorTests(unittest.TestCase):
 
 
 class OutputNameTests(unittest.TestCase):
+    def test_repeated_commonactions_extension_is_normalized_to_original_name(self):
+        from patch_camera_gui import normalize_output_path
+
+        bad_path = Path(r"C:\Game\Out\CommonActions.pkg.bytes.pkg.bytes.pkg.bytes")
+
+        output = normalize_output_path(bad_path)
+
+        self.assertEqual(output, Path(r"C:\Game\Out\CommonActions.pkg.bytes"))
+
+    def test_output_folder_always_uses_original_commonactions_file_name(self):
+        from patch_camera_gui import output_path_from_folder
+
+        output = output_path_from_folder(Path(r"C:\Game\Out"))
+
+        self.assertEqual(output, Path(r"C:\Game\Out\CommonActions.pkg.bytes"))
+
     def test_default_output_file_keeps_original_commonactions_name_in_mod_folder(self):
         from patch_camera_gui import CameraPatchGui
         import tempfile

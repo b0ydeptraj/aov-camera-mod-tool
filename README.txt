@@ -15,7 +15,7 @@ Cách dùng GUI:
 1. Mở Mod_Camera_Lien_Quan.exe.
 2. Chọn CommonActions.pkg.bytes hoặc file bị đổi tên kiểu CommonActions.pkg_1.bytes, hoặc chọn thư mục Ages/Resources.
 3. Chọn kgvn.app hoặc kgvn.app\Data\resources.assets của đúng bản game update.
-4. Chọn nơi lưu file đã mod. File kết quả nên giữ đúng tên CommonActions.pkg.bytes.
+4. Chọn thư mục lưu file đã mod. Tool luôn tạo file kết quả đúng tên CommonActions.pkg.bytes.
 5. Chọn mức camera 10%, 20% hoặc 40%, rồi bấm Mod ngay.
 
 Đường dẫn lấy CommonActions trong game:

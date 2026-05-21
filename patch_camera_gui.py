@@ -16,6 +16,26 @@ CAMERA_LEVELS = {
     "40%": 3.0,
 }
 
+OUTPUT_FILE_NAME = "CommonActions.pkg.bytes"
+
+
+def output_path_from_folder(folder: Path) -> Path:
+    return folder / OUTPUT_FILE_NAME
+
+
+def normalize_output_path(path: Path) -> Path:
+    if path.exists() and path.is_dir():
+        return output_path_from_folder(path)
+
+    if not path.name or path.suffix == "":
+        return output_path_from_folder(path)
+
+    marker = OUTPUT_FILE_NAME.lower()
+    if marker in path.name.lower():
+        return path.with_name(OUTPUT_FILE_NAME)
+
+    return path.with_name(OUTPUT_FILE_NAME)
+
 
 def ui_font(size: int, weight: str | None = None) -> str:
     suffix = f" {weight}" if weight else ""
@@ -293,7 +313,7 @@ class CameraPatchGui:
 
         row = ttk.Frame(card, style="Card.TFrame")
         row.grid(row=3, column=0, sticky="ew")
-        ttk.Button(row, text="Chọn chỗ lưu", style="Ghost.TButton", command=self._choose_output).grid(row=0, column=0, sticky="w")
+        ttk.Button(row, text="Chọn thư mục lưu", style="Ghost.TButton", command=self._choose_output).grid(row=0, column=0, sticky="w")
         ttk.Button(row, text="Tự đặt cạnh file gốc", style="Small.TButton", command=self._auto_output).grid(row=0, column=1, sticky="w", padx=(10, 0))
 
         ttk.Label(
@@ -422,7 +442,7 @@ class CameraPatchGui:
             pkg_path = resolve_common_actions(Path(raw_path).expanduser().resolve())
         except BaseException:
             return None
-        return pkg_path.with_name("CommonActions_mod") / "CommonActions.pkg.bytes"
+        return output_path_from_folder(pkg_path.with_name("CommonActions_mod"))
 
     def _auto_output(self) -> None:
         guessed = self._guess_output_path()
@@ -432,18 +452,15 @@ class CameraPatchGui:
 
     def _choose_output(self) -> None:
         initial = self._guess_output_path()
-        kwargs = {
-            "title": "Chọn nơi lưu file đã mod",
-            "defaultextension": ".bytes",
-            "filetypes": [("CommonActions", "*.pkg.bytes"), ("Tất cả file", "*.*")],
-        }
+        kwargs = {"title": "Chọn thư mục lưu file đã mod"}
         if initial:
-            kwargs["initialdir"] = str(initial.parent)
-            kwargs["initialfile"] = initial.name
-        path = filedialog.asksaveasfilename(**kwargs)
+            initial_folder = initial.parent if initial.parent.exists() else initial.parent.parent
+            kwargs["initialdir"] = str(initial_folder)
+        path = filedialog.askdirectory(**kwargs)
         if path:
-            self.output_path.set(path)
-            self._set_status("Đã chọn nơi lưu", "Bấm Mod ngay để tạo file")
+            output = output_path_from_folder(Path(path))
+            self.output_path.set(str(output))
+            self._set_status("Đã chọn thư mục lưu", "Tool sẽ tạo CommonActions.pkg.bytes trong thư mục này")
 
     def _use_latest(self) -> None:
         candidates = [
@@ -476,7 +493,7 @@ class CameraPatchGui:
             return
 
         raw_output = self.output_path.get().strip().strip('"')
-        output = Path(raw_output) if raw_output else self._guess_output_path()
+        output = normalize_output_path(Path(raw_output).expanduser()) if raw_output else self._guess_output_path()
         overwrite_source = self.make_backup.get()
         if not output and not overwrite_source:
             messagebox.showwarning("Thiếu nơi lưu", "Hãy chọn nơi lưu file đã mod.")
@@ -526,7 +543,7 @@ class CameraPatchGui:
                 final_output = None
                 backup = True
             else:
-                final_output = output_path.expanduser().resolve() if output_path else pkg_path.with_name("CommonActions_mod") / "CommonActions.pkg.bytes"
+                final_output = normalize_output_path(output_path.expanduser()).resolve() if output_path else output_path_from_folder(pkg_path.with_name("CommonActions_mod"))
                 backup = False
 
             assets = game_assets_path.expanduser().resolve()
