@@ -25,9 +25,9 @@ TARGET_ENTRIES = (
 )
 
 PKG_MAGIC = b"\x22\x4a\x00\xef"
-BYTESDICT_MAGIC = b"\x22\x4a\x67\x00"
 ZSTD_DICT_MAGIC = b"\x37\xa4\x30\xec"
-EXPECTED_DICT_ID = 188962279
+MIN_DICT_SCAN_SIZE = 1024
+MAX_DICT_SCAN_SIZE = 1024 * 1024
 CAMERA_TRACK_RE = re.compile(
     r"\s*<Track\s+trackName=\"SetCameraHeightDuration0\"[^>]*>.*?</Track>",
     re.DOTALL,
@@ -81,35 +81,6 @@ def resolve_common_actions(path: Path) -> Path:
     return candidates[0]
 
 
-def load_dict(dict_path: Path) -> zstd.ZstdCompressionDict:
-    data = dict_path.read_bytes()
-    if data.startswith(BYTESDICT_MAGIC):
-        declared_size = struct.unpack("<I", data[4:8])[0] if len(data) >= 8 else 0
-        raise ValueError(
-            "Selected file is game bytesDict.bytes wrapper (magic 22 4A 67 00"
-            f", declared raw size {declared_size}). It is not a raw zstd dictionary."
-        )
-
-    zdict = zstd.ZstdCompressionDict(data)
-    dict_id = zdict.dict_id()
-    if dict_id != EXPECTED_DICT_ID:
-        print(f"Warning: dictionary id is {dict_id}, bundled expected {EXPECTED_DICT_ID}")
-    return zdict
-
-
-def read_bytesdict_raw_size(bytesdict_path: Path) -> int:
-    data = bytesdict_path.read_bytes()
-    if len(data) < 8 or not data.startswith(BYTESDICT_MAGIC):
-        raise ValueError(
-            f"{bytesdict_path} is not game bytesDict.bytes wrapper "
-            "(expected magic 22 4A 67 00)."
-        )
-    raw_size = struct.unpack("<I", data[4:8])[0]
-    if raw_size <= 0:
-        raise ValueError(f"{bytesdict_path} declares invalid raw dictionary size: {raw_size}")
-    return raw_size
-
-
 def resolve_game_assets(path: Path) -> Path:
     if path.is_file():
         return path
@@ -128,15 +99,68 @@ def resolve_game_assets(path: Path) -> Path:
     return candidates[0]
 
 
+def read_target_entry_data(pkg_path: Path) -> dict[str, bytes]:
+    with zipfile.ZipFile(pkg_path, "r") as zin:
+        names = set(zin.namelist())
+        missing = [name for name in TARGET_ENTRIES if name not in names]
+        if missing:
+            raise SystemExit("Missing required entries: " + ", ".join(missing))
+        return {name: zin.read(name) for name in TARGET_ENTRIES}
+
+
+def read_entry_dict_ids_from_data(entry_data: dict[str, bytes]) -> dict[str, int]:
+    ids: dict[str, int] = {}
+    for name in TARGET_ENTRIES:
+        data = entry_data[name]
+        if not data.startswith(PKG_MAGIC):
+            raise ValueError(f"{name} does not start with AoV zstd magic 22 4A 00 EF")
+        ids[name] = zstd.get_frame_parameters(data[8:]).dict_id
+    return ids
+
+
+def looks_like_target_xml(raw: bytes) -> bool:
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return False
+    stripped = text.lstrip()
+    return (
+        stripped.startswith("<?xml")
+        and "<Project" in text
+        and "</Project>" in text
+        and "<Action" in text
+    )
+
+
+def candidate_decodes_target_entries(candidate: bytes, entry_data: dict[str, bytes]) -> bool:
+    try:
+        zdict = zstd.ZstdCompressionDict(candidate)
+    except zstd.ZstdError:
+        return False
+    decompressor = zstd.ZstdDecompressor(dict_data=zdict)
+    for name, data in entry_data.items():
+        if not data.startswith(PKG_MAGIC):
+            return False
+        expected_size = struct.unpack("<I", data[4:8])[0]
+        try:
+            raw = decompressor.decompress(data[8:])
+        except zstd.ZstdError:
+            return False
+        if len(raw) != expected_size or not looks_like_target_xml(raw):
+            return False
+    return True
+
+
 def extract_raw_dict_from_assets(
     game_assets_path: Path,
-    bytesdict_path: Path,
     required_ids: dict[str, int] | None = None,
+    entry_data: dict[str, bytes] | None = None,
 ) -> ExtractedDictionary:
     source_path = resolve_game_assets(game_assets_path)
-    raw_size = read_bytesdict_raw_size(bytesdict_path)
     asset_data = source_path.read_bytes()
     required = sorted({dict_id for dict_id in (required_ids or {}).values() if dict_id})
+    if entry_data is None:
+        raise ValueError("CommonActions entry data is required when extracting from resources.assets.")
 
     start = 0
     while True:
@@ -144,40 +168,52 @@ def extract_raw_dict_from_assets(
         if offset < 0:
             break
         start = offset + 1
-        end = offset + raw_size
-        if end > len(asset_data):
-            continue
+        if required and len(asset_data) >= offset + 8:
+            header_dict_id = struct.unpack("<I", asset_data[offset + 4:offset + 8])[0]
+            if header_dict_id not in required:
+                continue
 
-        candidate = asset_data[offset:end]
-        try:
-            dict_id = zstd.ZstdCompressionDict(candidate).dict_id()
-        except zstd.ZstdError:
-            continue
+        max_size = min(MAX_DICT_SCAN_SIZE, len(asset_data) - offset)
+        sizes = range(MIN_DICT_SCAN_SIZE, max_size + 1)
 
-        if required and dict_id not in required:
-            continue
+        for size in sizes:
+            end = offset + size
+            if end > len(asset_data):
+                continue
 
-        return ExtractedDictionary(
-            data=candidate,
-            source_path=source_path,
-            offset=offset,
-            size=raw_size,
-            dict_id=dict_id,
-        )
+            candidate = asset_data[offset:end]
+            try:
+                dict_id = zstd.ZstdCompressionDict(candidate).dict_id()
+            except zstd.ZstdError:
+                continue
+
+            if required and dict_id not in required:
+                continue
+
+            if entry_data is not None and not candidate_decodes_target_entries(candidate, entry_data):
+                continue
+
+            return ExtractedDictionary(
+                data=candidate,
+                source_path=source_path,
+                offset=offset,
+                size=size,
+                dict_id=dict_id,
+            )
 
     required_text = ", ".join(str(dict_id) for dict_id in required) if required else "any"
     raise ValueError(
         f"Cannot extract matching raw zstd dictionary from {source_path}. "
-        f"bytesDict raw size={raw_size}, required dict id={required_text}."
+        f"auto-scan <= {MAX_DICT_SCAN_SIZE}, required dict id={required_text}."
     )
 
 
 def load_dict_from_assets(
     game_assets_path: Path,
-    bytesdict_path: Path,
     required_ids: dict[str, int],
+    entry_data: dict[str, bytes],
 ) -> zstd.ZstdCompressionDict:
-    extracted = extract_raw_dict_from_assets(game_assets_path, bytesdict_path, required_ids)
+    extracted = extract_raw_dict_from_assets(game_assets_path, required_ids, entry_data)
     print(f"Extracted raw dictionary from: {extracted.source_path}")
     print(
         f"Dictionary offset={extracted.offset}, size={extracted.size}, "
@@ -187,19 +223,7 @@ def load_dict_from_assets(
 
 
 def read_entry_dict_ids(pkg_path: Path) -> dict[str, int]:
-    ids: dict[str, int] = {}
-    with zipfile.ZipFile(pkg_path, "r") as zin:
-        names = set(zin.namelist())
-        missing = [name for name in TARGET_ENTRIES if name not in names]
-        if missing:
-            raise SystemExit("Missing required entries: " + ", ".join(missing))
-
-        for name in TARGET_ENTRIES:
-            data = zin.read(name)
-            if not data.startswith(PKG_MAGIC):
-                raise ValueError(f"{name} does not start with AoV zstd magic 22 4A 00 EF")
-            ids[name] = zstd.get_frame_parameters(data[8:]).dict_id
-    return ids
+    return read_entry_dict_ids_from_data(read_target_entry_data(pkg_path))
 
 
 def ensure_dict_matches_package(zdict: zstd.ZstdCompressionDict, required_ids: dict[str, int]) -> None:
@@ -263,23 +287,18 @@ def patch_xml(xml_text: str, height_rate: float) -> tuple[str, str]:
 
 def patch_package(
     pkg_path: Path,
-    dict_path: Path | None,
     height_rate: float,
     level: int,
     backup: bool,
     output_path: Path | None = None,
     game_assets_path: Path | None = None,
-    bytesdict_path: Path | None = None,
 ) -> None:
-    required_ids = read_entry_dict_ids(pkg_path)
+    entry_data = read_target_entry_data(pkg_path)
+    required_ids = read_entry_dict_ids_from_data(entry_data)
     if game_assets_path is not None:
-        if bytesdict_path is None:
-            raise ValueError("bytesDict.bytes is required when extracting dictionary from game assets.")
-        zdict = load_dict_from_assets(game_assets_path, bytesdict_path, required_ids)
-    elif dict_path is not None:
-        zdict = load_dict(dict_path)
+        zdict = load_dict_from_assets(game_assets_path, required_ids, entry_data)
     else:
-        raise ValueError("A raw zstd dictionary or game assets path is required.")
+        raise ValueError("kgvn.app or resources.assets is required.")
     ensure_dict_matches_package(zdict, required_ids)
 
     statuses: list[str] = []
@@ -350,16 +369,8 @@ def main() -> None:
         help="CommonActions.pkg.bytes, Ages folder, or Resources/<version> folder",
     )
     parser.add_argument(
-        "--dict",
-        default=str(Path(__file__).with_name("zstd_dict.bin")),
-        help="zstd_dict.bin path",
-    )
-    parser.add_argument(
-        "--bytes-dict",
-        help="game bytesDict.bytes wrapper path; required with --game-assets",
-    )
-    parser.add_argument(
         "--game-assets",
+        required=True,
         help="kgvn.app folder or Data/resources.assets file to extract raw zstd dictionary",
     )
     parser.add_argument(
@@ -386,30 +397,20 @@ def main() -> None:
     args = parser.parse_args()
 
     input_path = Path(args.input).expanduser().resolve()
-    dict_path = Path(args.dict).expanduser().resolve()
-    game_assets_path = Path(args.game_assets).expanduser().resolve() if args.game_assets else None
-    bytesdict_path = Path(args.bytes_dict).expanduser().resolve() if args.bytes_dict else None
+    game_assets_path = Path(args.game_assets).expanduser().resolve()
     if not input_path.exists():
         raise SystemExit(f"Input does not exist: {input_path}")
-    if game_assets_path is not None and not game_assets_path.exists():
+    if not game_assets_path.exists():
         raise SystemExit(f"Game assets path does not exist: {game_assets_path}")
-    if bytesdict_path is not None and not bytesdict_path.exists():
-        raise SystemExit(f"bytesDict.bytes does not exist: {bytesdict_path}")
-    if game_assets_path is not None and bytesdict_path is None:
-        raise SystemExit("--bytes-dict is required with --game-assets")
-    if game_assets_path is None and not dict_path.exists():
-        raise SystemExit(f"Dictionary does not exist: {dict_path}")
 
     pkg_path = resolve_common_actions(input_path)
     patch_package(
         pkg_path=pkg_path,
-        dict_path=dict_path if game_assets_path is None else None,
         height_rate=args.height,
         level=args.level,
         backup=not args.no_backup,
         output_path=Path(args.output).expanduser().resolve() if args.output else None,
         game_assets_path=game_assets_path,
-        bytesdict_path=bytesdict_path,
     )
 
 
