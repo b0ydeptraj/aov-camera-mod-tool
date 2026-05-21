@@ -16,7 +16,7 @@ Mở tab **Releases** của repo này và tải bản mới nhất.
 
 1. Mở `Mod_Camera_Lien_Quan.exe`.
 2. Chọn `CommonActions.pkg.bytes` hoặc chọn thư mục `Ages` / `Resources`.
-3. Để dictionary mặc định. Ô này cần raw zstd dictionary, còn `bytesDict.bytes` của game là file bọc riêng.
+3. Nếu game update, chọn thêm `bytesDict.bytes` ở ô riêng để tool kiểm tra. Đường raw dictionary vẫn để mặc định nếu `dict id` còn khớp.
 4. Chọn nơi lưu file đã mod.
 5. Chọn mức camera rồi bấm `Mod ngay`.
 
@@ -34,7 +34,7 @@ bytesDict khi game update đổi dictionary:
 Documents\Resources\1.62.1\Config\bytesDict.bytes
 ```
 
-Lưu ý: `bytesDict.bytes` dùng để phân tích/cập nhật tool khi game đổi dictionary, không phải raw dictionary để chọn trực tiếp trong zstd.
+Lưu ý: `bytesDict.bytes` của game thường là file bọc riêng/AES, không phải raw dictionary để chọn trực tiếp trong zstd. Tool sẽ đọc `dict id` mà `CommonActions.pkg.bytes` yêu cầu; nếu dictionary mặc định không khớp, tool dừng lại thay vì dùng bản cũ.
 
 ## Source
 

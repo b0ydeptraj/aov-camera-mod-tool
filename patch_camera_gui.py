@@ -8,7 +8,7 @@ from pathlib import Path
 from tkinter import BooleanVar, Canvas, StringVar, Text, Tk, filedialog, messagebox
 from tkinter import ttk
 
-from patch_aov_camera import patch_package, resolve_common_actions
+from patch_aov_camera import BYTESDICT_MAGIC, patch_package, resolve_common_actions
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -59,6 +59,7 @@ class CameraPatchGui:
         self.root.option_add("*Font", ui_font(10))
 
         self.input_path = StringVar()
+        self.game_dict_path = StringVar()
         self.dict_path = StringVar(value=str(DEFAULT_DICT))
         self.output_path = StringVar()
         self.camera_level = StringVar(value="20%")
@@ -187,7 +188,7 @@ class CameraPatchGui:
         ttk.Label(top, text="Bộ công cụ mod camera", style="PageTitle.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(
             top,
-            text="Chọn file mới nhất, để dictionary mặc định nếu CommonActions vẫn cùng dict id, rồi xuất file đã mod.",
+            text="Chọn CommonActions mới nhất. Nếu update đổi dictionary, chọn thêm bytesDict.bytes để tool kiểm tra và không dùng nhầm bản cũ.",
             style="PageSub.TLabel",
         ).grid(row=1, column=0, sticky="w", pady=(6, 0))
 
@@ -274,27 +275,42 @@ class CameraPatchGui:
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
 
     def _build_dict_card(self, parent: ttk.Frame) -> None:
-        card = self._card(parent, "2", "Dictionary zstd", "Đây là raw zstd dictionary mà tool dùng để giải nén XML. Bình thường cứ bấm Dùng mặc định.")
-        ttk.Label(card, text="Đường dẫn raw zstd dictionary", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
-        ttk.Entry(card, textvariable=self.dict_path, style="Path.TEntry").grid(row=2, column=0, sticky="ew", pady=(7, 10))
+        card = self._card(parent, "2", "Dictionary bản game", "Có thể chọn bytesDict.bytes của bản update để tool kiểm tra. Raw zstd dictionary vẫn là file dùng để giải nén XML.")
+        ttk.Label(card, text="bytesDict.bytes trong game khi có update", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
+        ttk.Entry(card, textvariable=self.game_dict_path, style="Path.TEntry").grid(row=2, column=0, sticky="ew", pady=(7, 10))
 
-        row = ttk.Frame(card, style="Card.TFrame")
-        row.grid(row=3, column=0, sticky="ew")
-        ttk.Button(row, text="Chọn raw dictionary", style="Ghost.TButton", command=self._choose_dict).grid(row=0, column=0, sticky="w")
-        ttk.Button(row, text="Dùng mặc định", style="Small.TButton", command=self._use_default_dict).grid(row=0, column=1, sticky="w", padx=(10, 0))
+        game_row = ttk.Frame(card, style="Card.TFrame")
+        game_row.grid(row=3, column=0, sticky="ew")
+        ttk.Button(game_row, text="Chọn bytesDict.bytes", style="Ghost.TButton", command=self._choose_game_dict).grid(row=0, column=0, sticky="w")
+        ttk.Button(game_row, text="Bỏ chọn bytesDict", style="Small.TButton", command=self._clear_game_dict).grid(row=0, column=1, sticky="w", padx=(10, 0))
 
         ttk.Label(
             card,
-            text="Không cần chọn bytesDict.bytes nếu bạn không có raw dictionary. File bytesDict.bytes của game là file bọc riêng, không phải raw zstd dictionary.",
+            text=r"Lấy bytesDict ở đây: Documents\Resources\<version>\Config\bytesDict.bytes",
             style="Hint.TLabel",
             wraplength=840,
         ).grid(row=4, column=0, sticky="w", pady=(11, 0))
         ttk.Label(
             card,
-            text=r"Khi game update thật sự đổi dictionary, gửi CommonActions.pkg.bytes + Documents\Resources\<version>\Config\bytesDict.bytes để cập nhật tool.",
+            text="Tool sẽ đọc CommonActions cần dict id nào. Nếu dictionary mặc định không khớp, tool dừng lại, không dùng bản cũ.",
             style="Hint.TLabel",
             wraplength=840,
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
+
+        ttk.Label(card, text="Raw zstd dictionary đang dùng để vá", style="FieldLabel.TLabel").grid(row=6, column=0, sticky="w", pady=(13, 0))
+        ttk.Entry(card, textvariable=self.dict_path, style="Path.TEntry").grid(row=7, column=0, sticky="ew", pady=(7, 10))
+
+        raw_row = ttk.Frame(card, style="Card.TFrame")
+        raw_row.grid(row=8, column=0, sticky="ew")
+        ttk.Button(raw_row, text="Chọn raw dictionary", style="Ghost.TButton", command=self._choose_dict).grid(row=0, column=0, sticky="w")
+        ttk.Button(raw_row, text="Dùng mặc định", style="Small.TButton", command=self._use_default_dict).grid(row=0, column=1, sticky="w", padx=(10, 0))
+
+        ttk.Label(
+            card,
+            text="Lưu ý: bytesDict.bytes của game thường là file bọc riêng/AES, không phải raw zstd dictionary. Nếu update đổi thuật toán, cần cập nhật extractor trước khi vá.",
+            style="Hint.TLabel",
+            wraplength=840,
+        ).grid(row=9, column=0, sticky="w", pady=(11, 0))
 
     def _build_output_card(self, parent: ttk.Frame) -> None:
         card = self._card(parent, "3", "Nơi lưu file đã mod", "Tool có thể tạo file mới để bạn test, không cần ghi đè file gốc.")
@@ -402,13 +418,28 @@ class CameraPatchGui:
             self._auto_output()
             self._set_status("Đã chọn thư mục", "Tool sẽ tự tìm CommonActions trong Prefab_Hero")
 
+    def _choose_game_dict(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Chọn bytesDict.bytes trong game",
+            filetypes=[
+                ("bytesDict.bytes", "bytesDict.bytes"),
+                ("Tất cả file", "*.*"),
+            ],
+        )
+        if path:
+            self.game_dict_path.set(path)
+            self._set_status("Đã chọn bytesDict", "Tool sẽ kiểm tra bản update trước khi mod")
+
+    def _clear_game_dict(self) -> None:
+        self.game_dict_path.set("")
+        self._set_status("Đã bỏ bytesDict", "Nếu CommonActions vẫn cùng dict id thì dùng mặc định")
+
     def _choose_dict(self) -> None:
         path = filedialog.askopenfilename(
             title="Chọn raw dictionary zstd",
             filetypes=[
                 ("Raw zstd dictionary", "*.bin *.bytes"),
                 ("zstd_dict.bin", "zstd_dict.bin"),
-                ("bytesDict.bytes", "bytesDict.bytes"),
                 ("Tất cả file", "*.*"),
             ],
         )
@@ -481,6 +512,7 @@ class CameraPatchGui:
             messagebox.showwarning("Thiếu dictionary", "Hãy bấm Dùng mặc định hoặc chọn raw zstd_dict.bin.")
             return
 
+        raw_game_dict = self.game_dict_path.get().strip().strip('"')
         raw_output = self.output_path.get().strip().strip('"')
         output = Path(raw_output) if raw_output else self._guess_output_path()
         overwrite_source = self.make_backup.get()
@@ -504,7 +536,7 @@ class CameraPatchGui:
 
         thread = threading.Thread(
             target=self._patch_worker,
-            args=(Path(raw_path), Path(raw_dict), output, height, camera_percent, overwrite_source),
+            args=(Path(raw_path), Path(raw_dict), Path(raw_game_dict) if raw_game_dict else None, output, height, camera_percent, overwrite_source),
             daemon=True,
         )
         thread.start()
@@ -513,6 +545,7 @@ class CameraPatchGui:
         self,
         input_path: Path,
         dict_path: Path,
+        game_dict_path: Path | None,
         output_path: Path | None,
         height: float,
         camera_percent: str,
@@ -527,6 +560,25 @@ class CameraPatchGui:
             else:
                 final_output = output_path.expanduser().resolve() if output_path else pkg_path.with_name("CommonActions_patched.pkg.bytes")
                 backup = False
+            if game_dict_path is not None:
+                game_dict = game_dict_path.expanduser().resolve()
+                stream.write(f"bytesDict game: {game_dict}\n")
+                if game_dict.exists():
+                    game_data = game_dict.read_bytes()
+                    if game_data.startswith(BYTESDICT_MAGIC):
+                        declared_size = int.from_bytes(game_data[4:8], "little") if len(game_data) >= 8 else 0
+                        stream.write(
+                            "bytesDict header: 22 4A 67 00 "
+                            f"(raw size khai báo {declared_size} byte). "
+                            "Đây là file bọc của game, tool dùng để nhận diện update chứ không coi là raw dictionary.\n"
+                        )
+                    else:
+                        stream.write(
+                            "bytesDict này không có header 22 4A 67 00. "
+                            "Nếu đây là raw zstd dictionary thì hãy chọn ở ô raw dictionary bên dưới.\n"
+                        )
+                else:
+                    raise FileNotFoundError(f"Không tìm thấy bytesDict.bytes: {game_dict}")
             selected_dict = dict_path.expanduser().resolve()
             try:
                 with contextlib.redirect_stdout(stream):
@@ -550,18 +602,35 @@ class CameraPatchGui:
                     raise
 
                 retry_stream = io.StringIO()
-                with contextlib.redirect_stdout(retry_stream):
-                    patch_package(
-                        pkg_path=pkg_path,
-                        dict_path=default_dict,
-                        height_rate=height,
-                        level=17,
-                        backup=backup,
-                        output_path=final_output,
+                try:
+                    with contextlib.redirect_stdout(retry_stream):
+                        patch_package(
+                            pkg_path=pkg_path,
+                            dict_path=default_dict,
+                            height_rate=height,
+                            level=17,
+                            backup=backup,
+                            output_path=final_output,
+                        )
+                except BaseException as fallback_exc:
+                    fail_stream = io.StringIO()
+                    fail_stream.write(first_output)
+                    fail_stream.write(f"\nDictionary bạn chọn không dùng trực tiếp được: {first_exc}\n")
+                    fail_stream.write(f"Thử dictionary mặc định cũng không vá được: {fallback_exc}\n")
+                    fail_stream.write(
+                        "Kết luận: bản CommonActions này cần raw dictionary mới. "
+                        "Tool đã dừng để tránh dùng dictionary cũ làm hỏng file. "
+                        r"Hãy gửi CommonActions.pkg.bytes + Documents\Resources\<version>\Config\bytesDict.bytes để cập nhật extractor/tool."
+                        "\n"
                     )
+                    self.queue.put(("error", fail_stream.getvalue()))
+                    return
                 stream = io.StringIO()
                 stream.write(first_output)
-                stream.write("\nDictionary bạn chọn không phải raw zstd dictionary dùng trực tiếp được. Tool đã tự dùng dictionary mặc định đi kèm và mod lại thành công.\n")
+                stream.write(
+                    "\nDictionary bạn chọn không phải raw zstd dictionary dùng trực tiếp được. "
+                    "Tool chỉ dùng dictionary mặc định sau khi kiểm tra nó khớp dict id mà CommonActions yêu cầu.\n"
+                )
                 stream.write(retry_stream.getvalue())
             result = "\n".join(line for line in stream.getvalue().splitlines() if not line.startswith("heightRate="))
             result += f"\nMức camera: {camera_percent}\n"

@@ -24,6 +24,8 @@ TARGET_ENTRIES = (
 )
 
 PKG_MAGIC = b"\x22\x4a\x00\xef"
+BYTESDICT_MAGIC = b"\x22\x4a\x67\x00"
+EXPECTED_DICT_ID = 188962279
 CAMERA_TRACK_RE = re.compile(
     r"\s*<Track\s+trackName=\"SetCameraHeightDuration0\"[^>]*>.*?</Track>",
     re.DOTALL,
@@ -70,11 +72,50 @@ def resolve_common_actions(path: Path) -> Path:
 
 def load_dict(dict_path: Path) -> zstd.ZstdCompressionDict:
     data = dict_path.read_bytes()
+    if data.startswith(BYTESDICT_MAGIC):
+        declared_size = struct.unpack("<I", data[4:8])[0] if len(data) >= 8 else 0
+        raise ValueError(
+            "Selected file is game bytesDict.bytes wrapper (magic 22 4A 67 00"
+            f", declared raw size {declared_size}). It is not a raw zstd dictionary."
+        )
+
     zdict = zstd.ZstdCompressionDict(data)
     dict_id = zdict.dict_id()
-    if dict_id != 188962279:
-        print(f"Warning: dictionary id is {dict_id}, expected 188962279")
+    if dict_id != EXPECTED_DICT_ID:
+        print(f"Warning: dictionary id is {dict_id}, bundled expected {EXPECTED_DICT_ID}")
     return zdict
+
+
+def read_entry_dict_ids(pkg_path: Path) -> dict[str, int]:
+    ids: dict[str, int] = {}
+    with zipfile.ZipFile(pkg_path, "r") as zin:
+        names = set(zin.namelist())
+        missing = [name for name in TARGET_ENTRIES if name not in names]
+        if missing:
+            raise SystemExit("Missing required entries: " + ", ".join(missing))
+
+        for name in TARGET_ENTRIES:
+            data = zin.read(name)
+            if not data.startswith(PKG_MAGIC):
+                raise ValueError(f"{name} does not start with AoV zstd magic 22 4A 00 EF")
+            ids[name] = zstd.get_frame_parameters(data[8:]).dict_id
+    return ids
+
+
+def ensure_dict_matches_package(zdict: zstd.ZstdCompressionDict, required_ids: dict[str, int]) -> None:
+    required = sorted({dict_id for dict_id in required_ids.values() if dict_id})
+    actual = zdict.dict_id()
+    if required:
+        print("CommonActions required dictionary id(s): " + ", ".join(str(dict_id) for dict_id in required))
+        if actual not in required:
+            raise ValueError(
+                f"Raw dictionary id {actual} does not match CommonActions required dict id(s): "
+                + ", ".join(str(dict_id) for dict_id in required)
+                + ". This looks like a new game dictionary; refusing to use an old dictionary."
+            )
+        print(f"Dictionary id OK: {actual}")
+    else:
+        print("Warning: CommonActions entries do not advertise a zstd dictionary id")
 
 
 def decode_entry(data: bytes, zdict: zstd.ZstdCompressionDict) -> str:
@@ -128,7 +169,9 @@ def patch_package(
     backup: bool,
     output_path: Path | None = None,
 ) -> None:
+    required_ids = read_entry_dict_ids(pkg_path)
     zdict = load_dict(dict_path)
+    ensure_dict_matches_package(zdict, required_ids)
 
     statuses: list[str] = []
     tmp_fd, tmp_name = tempfile.mkstemp(prefix="commonactions_", suffix=".pkg.bytes")

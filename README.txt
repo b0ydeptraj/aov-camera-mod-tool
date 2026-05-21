@@ -14,7 +14,7 @@ Mức camera trong GUI:
 Cách dùng GUI:
 1. Mở Mo_Giao_Dien.vbs để không hiện CMD đen.
 2. Chọn CommonActions.pkg.bytes hoặc file bị đổi tên kiểu CommonActions.pkg_1.bytes, hoặc chọn thư mục Ages/Resources.
-3. Để dictionary mặc định. Ô này cần raw zstd dictionary, còn bytesDict.bytes của game là file bọc riêng.
+3. Nếu game update, chọn thêm bytesDict.bytes ở ô riêng để tool kiểm tra. Đường raw dictionary vẫn để mặc định nếu dict id còn khớp.
 4. Chọn nơi lưu file đã mod.
 5. Chọn mức camera 10%, 20% hoặc 40%, rồi bấm Mod ngay.
 
@@ -28,7 +28,8 @@ Lưu ý:
 - Không tick ghi đè: tool tạo CommonActions_patched.pkg.bytes để test.
 - Tick ghi đè: tool vá trực tiếp CommonActions.pkg.bytes và tạo file .bak.
 - bytesDict.bytes không phải raw dictionary để chọn trực tiếp trong zstd.
-- Nếu dictionary mặc định không còn khớp, cần gửi CommonActions.pkg.bytes + bytesDict.bytes của bản đó để cập nhật tool.
+- Tool sẽ đọc dict id mà CommonActions.pkg.bytes yêu cầu. Nếu dictionary mặc định không còn khớp, tool dừng lại, không dùng bản cũ.
+- Khi đó cần gửi CommonActions.pkg.bytes + bytesDict.bytes của bản đó để cập nhật extractor/tool.
 
 Command CLI:
 python patch_aov_camera.py "C:\path\CommonActions.pkg.bytes" --height 1.5
