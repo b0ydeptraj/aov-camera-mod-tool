@@ -61,5 +61,27 @@ class DictionaryExtractorTests(unittest.TestCase):
         self.assertEqual(extracted.data, raw_dict)
 
 
+class OutputNameTests(unittest.TestCase):
+    def test_default_output_file_keeps_original_commonactions_name_in_mod_folder(self):
+        from patch_camera_gui import CameraPatchGui
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_name:
+            tmp = Path(tmp_name)
+            source = tmp / "CommonActions.pkg.bytes"
+            source.write_bytes(b"placeholder")
+
+            gui = CameraPatchGui.__new__(CameraPatchGui)
+            class FakeVar:
+                def get(self):
+                    return str(source)
+            gui.input_path = FakeVar()
+
+            output = CameraPatchGui._guess_output_path(gui)
+
+        self.assertEqual(output.name, "CommonActions.pkg.bytes")
+        self.assertEqual(output.parent.name, "CommonActions_mod")
+
+
 if __name__ == "__main__":
     unittest.main()

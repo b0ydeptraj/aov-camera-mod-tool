@@ -145,7 +145,7 @@ class CameraPatchGui:
         ttk.Label(sidebar, text="Quy trình", style="SidebarTitle.TLabel").pack(anchor="w", pady=(0, 10))
         self._sidebar_step(sidebar, "1", "Chọn CommonActions", "File gốc cần mod camera")
         self._sidebar_step(sidebar, "2", "Dictionary zstd", "Chọn resources.assets của bản game")
-        self._sidebar_step(sidebar, "3", "Chọn nơi lưu", "Tool tạo file đã mod riêng")
+        self._sidebar_step(sidebar, "3", "Chọn nơi lưu", "File xuất luôn tên CommonActions.pkg.bytes")
         self._sidebar_step(sidebar, "4", "Mod ngay", "Bấm một lần rồi chờ kết quả")
 
         ttk.Frame(sidebar, style="Sidebar.TFrame").pack(fill="both", expand=True)
@@ -287,7 +287,7 @@ class CameraPatchGui:
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
 
     def _build_output_card(self, parent: ttk.Frame) -> None:
-        card = self._card(parent, "3", "Nơi lưu file đã mod", "Tool có thể tạo file mới để bạn test, không cần ghi đè file gốc.")
+        card = self._card(parent, "3", "Nơi lưu file đã mod", "Tool tạo file kết quả đúng tên CommonActions.pkg.bytes để bạn thay lại vào game.")
         ttk.Label(card, text="Đường dẫn file kết quả", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
         ttk.Entry(card, textvariable=self.output_path, style="Path.TEntry").grid(row=2, column=0, sticky="ew", pady=(7, 10))
 
@@ -298,7 +298,7 @@ class CameraPatchGui:
 
         ttk.Label(
             card,
-            text="Nếu để trống, tool tự tạo CommonActions_patched.pkg.bytes cạnh file gốc. Sau khi mod xong, đường dẫn này vẫn hiện ở ô trên.",
+            text=r"Nếu để trống, tool tự tạo CommonActions_mod\CommonActions.pkg.bytes cạnh file gốc. File kết quả giữ đúng tên gốc để thay vào game.",
             style="Hint.TLabel",
             wraplength=840,
         ).grid(row=4, column=0, sticky="w", pady=(11, 0))
@@ -422,7 +422,7 @@ class CameraPatchGui:
             pkg_path = resolve_common_actions(Path(raw_path).expanduser().resolve())
         except BaseException:
             return None
-        return pkg_path.with_name("CommonActions_patched.pkg.bytes")
+        return pkg_path.with_name("CommonActions_mod") / "CommonActions.pkg.bytes"
 
     def _auto_output(self) -> None:
         guessed = self._guess_output_path()
@@ -526,7 +526,7 @@ class CameraPatchGui:
                 final_output = None
                 backup = True
             else:
-                final_output = output_path.expanduser().resolve() if output_path else pkg_path.with_name("CommonActions_patched.pkg.bytes")
+                final_output = output_path.expanduser().resolve() if output_path else pkg_path.with_name("CommonActions_mod") / "CommonActions.pkg.bytes"
                 backup = False
 
             assets = game_assets_path.expanduser().resolve()
