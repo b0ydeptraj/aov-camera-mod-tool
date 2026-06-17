@@ -8,6 +8,8 @@ from tkinter import BooleanVar, Canvas, StringVar, Text, Tk, filedialog, message
 from tkinter import ttk
 
 from patch_aov_camera import patch_package, resolve_common_actions
+from resourceverification_analyzer import analyze_resourceverification, format_report
+from strip_verification import strip_common_actions_from_bundle
 
 
 CAMERA_LEVELS = {
@@ -69,6 +71,7 @@ class CameraPatchGui:
 
         self.input_path = StringVar()
         self.game_assets_path = StringVar()
+        self.verification_path = StringVar()
         self.output_path = StringVar()
         self.camera_level = StringVar(value="20%")
         self.make_backup = BooleanVar(value=False)
@@ -165,8 +168,9 @@ class CameraPatchGui:
         ttk.Label(sidebar, text="Quy trình", style="SidebarTitle.TLabel").pack(anchor="w", pady=(0, 10))
         self._sidebar_step(sidebar, "1", "Chọn CommonActions", "File gốc cần mod camera")
         self._sidebar_step(sidebar, "2", "Dictionary zstd", "Chọn resources.assets của bản game")
-        self._sidebar_step(sidebar, "3", "Chọn nơi lưu", "File xuất luôn tên CommonActions.pkg.bytes")
-        self._sidebar_step(sidebar, "4", "Mod ngay", "Bấm một lần rồi chờ kết quả")
+        self._sidebar_step(sidebar, "3", "Chống reset verification", "Chọn resourceverification... để tool xoá CommonActions và xuất file mới")
+        self._sidebar_step(sidebar, "4", "Chọn nơi lưu", "File xuất luôn tên CommonActions.pkg.bytes")
+        self._sidebar_step(sidebar, "5", "Mod ngay", "Bấm một lần rồi chờ kết quả")
 
         ttk.Frame(sidebar, style="Sidebar.TFrame").pack(fill="both", expand=True)
 
@@ -228,6 +232,7 @@ class CameraPatchGui:
 
         self._build_file_card(body)
         self._build_dict_card(body)
+        self._build_verification_card(body)
         self._build_output_card(body)
         self._build_options_card(body)
         self._build_log_card(body)
@@ -306,8 +311,32 @@ class CameraPatchGui:
             wraplength=840,
         ).grid(row=5, column=0, sticky="w", pady=(3, 0))
 
+    def _build_verification_card(self, parent: ttk.Frame) -> None:
+        card = self._card(parent, "3", "Chống reset resourceverification", "Tùy chọn: chọn resourceverificationinfosetall.assetbundle để tool tự động xoá CommonActions khỏi danh sách verification và xuất file mới cạnh CommonActions đã mod. Nếu không chọn, tool vẫn mod camera bình thường.")
+        ttk.Label(card, text="resourceverificationinfosetall.assetbundle", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
+        ttk.Entry(card, textvariable=self.verification_path, style="Path.TEntry").grid(row=2, column=0, sticky="ew", pady=(7, 10))
+
+        row = ttk.Frame(card, style="Card.TFrame")
+        row.grid(row=3, column=0, sticky="ew")
+        ttk.Button(row, text="Chọn verification", style="Ghost.TButton", command=self._choose_verification_file).grid(row=0, column=0, sticky="w")
+        ttk.Button(row, text="Chọn thư mục Resources", style="Ghost.TButton", command=self._choose_verification_folder).grid(row=0, column=1, sticky="w", padx=(10, 0))
+        ttk.Button(row, text="Bỏ chọn", style="Small.TButton", command=self._clear_verification).grid(row=0, column=2, sticky="w", padx=(10, 0))
+
+        ttk.Label(
+            card,
+            text=r"Lấy trong game ở đây: Documents\Resources\1.62.1\assetbundle\resourceverificationinfosetall.assetbundle",
+            style="Hint.TLabel",
+            wraplength=840,
+        ).grid(row=4, column=0, sticky="w", pady=(11, 0))
+        ttk.Label(
+            card,
+            text="Nếu không chọn, tool vẫn mod camera bình thường. Nếu chọn, tool sẽ xuất thêm resourceverificationinfosetall.assetbundle đã xoá CommonActions vào cùng thư mục với CommonActions đã mod.",
+            style="Hint.TLabel",
+            wraplength=840,
+        ).grid(row=5, column=0, sticky="w", pady=(3, 0))
+
     def _build_output_card(self, parent: ttk.Frame) -> None:
-        card = self._card(parent, "3", "Nơi lưu file đã mod", "Tool tạo file kết quả đúng tên CommonActions.pkg.bytes để bạn thay lại vào game.")
+        card = self._card(parent, "4", "Nơi lưu file đã mod", "Tool tạo file kết quả đúng tên CommonActions.pkg.bytes để bạn thay lại vào game.")
         ttk.Label(card, text="Đường dẫn file kết quả", style="FieldLabel.TLabel").grid(row=1, column=0, sticky="w")
         ttk.Entry(card, textvariable=self.output_path, style="Path.TEntry").grid(row=2, column=0, sticky="ew", pady=(7, 10))
 
@@ -324,7 +353,7 @@ class CameraPatchGui:
         ).grid(row=4, column=0, sticky="w", pady=(11, 0))
 
     def _build_options_card(self, parent: ttk.Frame) -> None:
-        card = self._card(parent, "4", "Thiết lập camera", "Chọn mức phần trăm dễ hiểu. Tool sẽ tự đổi sang giá trị kỹ thuật khi ghi vào XML.")
+        card = self._card(parent, "5", "Thiết lập camera", "Chọn mức phần trăm dễ hiểu. Tool sẽ tự đổi sang giá trị kỹ thuật khi ghi vào XML.")
         settings = ttk.Frame(card, style="Card.TFrame")
         settings.grid(row=1, column=0, sticky="ew")
         settings.columnconfigure(3, weight=1)
@@ -348,7 +377,7 @@ class CameraPatchGui:
         ).grid(row=2, column=0, columnspan=4, sticky="w", pady=(6, 0))
 
     def _build_log_card(self, parent: ttk.Frame) -> None:
-        card = self._card(parent, "5", "Nhật ký xử lý", "Theo dõi tool đã tìm file, vá entry nào và file kết quả nằm ở đâu.")
+        card = self._card(parent, "6", "Nhật ký xử lý", "Theo dõi tool đã tìm file, vá entry nào, phân tích verification ra sao và file kết quả nằm ở đâu.")
         self.log = Text(
             card,
             height=8,
@@ -434,6 +463,29 @@ class CameraPatchGui:
         self.game_assets_path.set("")
         self._set_status("Đã bỏ resources.assets", "Chọn resources.assets của bản update trước khi Mod ngay")
 
+    def _choose_verification_file(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Chọn resourceverificationinfosetall.assetbundle",
+            filetypes=[
+                ("resourceverificationinfosetall", "resourceverificationinfosetall.assetbundle"),
+                ("AssetBundle", "*.assetbundle"),
+                ("Tất cả file", "*.*"),
+            ],
+        )
+        if path:
+            self.verification_path.set(path)
+            self._set_status("Đã chọn verification", "Tool sẽ phân tích CommonActions trong resourceverification")
+
+    def _choose_verification_folder(self) -> None:
+        path = filedialog.askdirectory(title="Chọn thư mục Resources hoặc 1.62.1")
+        if path:
+            self.verification_path.set(path)
+            self._set_status("Đã chọn thư mục verification", "Tool sẽ tự tìm resourceverificationinfosetall.assetbundle")
+
+    def _clear_verification(self) -> None:
+        self.verification_path.set("")
+        self._set_status("Đã bỏ verification", "Tool vẫn mod camera bình thường")
+
     def _guess_output_path(self) -> Path | None:
         raw_path = self.input_path.get().strip().strip('"')
         if not raw_path:
@@ -493,6 +545,7 @@ class CameraPatchGui:
             return
 
         raw_output = self.output_path.get().strip().strip('"')
+        raw_verification = self.verification_path.get().strip().strip('"')
         output = normalize_output_path(Path(raw_output).expanduser()) if raw_output else self._guess_output_path()
         overwrite_source = self.make_backup.get()
         if not output and not overwrite_source:
@@ -518,6 +571,7 @@ class CameraPatchGui:
             args=(
                 Path(raw_path),
                 Path(raw_game_assets),
+                Path(raw_verification) if raw_verification else None,
                 output,
                 height,
                 camera_percent,
@@ -531,6 +585,7 @@ class CameraPatchGui:
         self,
         input_path: Path,
         game_assets_path: Path,
+        verification_path: Path | None,
         output_path: Path | None,
         height: float,
         camera_percent: str,
@@ -563,6 +618,22 @@ class CameraPatchGui:
 
             result = "\n".join(line for line in stream.getvalue().splitlines() if not line.startswith("heightRate="))
             result += f"\nMức camera: {camera_percent}\n"
+            if verification_path is not None:
+                vpath = verification_path.expanduser().resolve()
+                # Phân tích
+                report = analyze_resourceverification(vpath)
+                result += "\n--- Phân tích resourceverification ---\n"
+                result += format_report(report)
+                result += "\n"
+                # Strip CommonActions và xuất file mới
+                strip_out = (final_output.parent if final_output else pkg_path.with_name("CommonActions_mod")) / "resourceverificationinfosetall.assetbundle"
+                strip_result = strip_common_actions_from_bundle(vpath, strip_out)
+                result += "\n--- Xoá CommonActions khỏi verification ---\n"
+                result += strip_result.message + "\n"
+                if strip_result.output_path:
+                    result += f"File chống reset: {strip_result.output_path}\n"
+                elif not strip_result.success:
+                    result += "⚠️  Cần can thiệp thủ công hoặc AI để xử lý file verification này.\n"
             self.queue.put(("ok", result))
         except BaseException as exc:
             output = stream.getvalue()
