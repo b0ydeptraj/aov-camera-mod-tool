@@ -62,7 +62,8 @@ def _entry_size_at(data: bytes, pos: int) -> int | None:
     """
     Tại vị trí pos, kiểm tra xem có phải 1 entry hợp lệ không.
     Trả về kích thước entry nếu hợp lệ, None nếu không.
-    Entry format: [4B LE length] [path bytes] [null+pad align 4] [8B hash]
+    Entry format: [4B LE length] [path bytes] [pad align 4] [8B hash]
+    Unity serialized strings: pad = (4 - (len % 4)) % 4 (NO guaranteed null terminator).
     """
     if pos + 4 > len(data):
         return None
@@ -79,15 +80,11 @@ def _entry_size_at(data: bytes, pos: int) -> int | None:
     # Phải có dấu chấm (tên file)
     if b"." not in path_bytes:
         return None
-    # Null padding: align (str_len + 1) lên bội 4
-    padded = ((str_len + 1 + 3) // 4) * 4
-    null_pad_size = padded - str_len
-    hash_start = path_start + str_len + null_pad_size
+    # Padding: align str_len lên bội 4 (Unity format - KHÔNG đảm bảo null terminator)
+    pad = (4 - (str_len % 4)) % 4
+    hash_start = path_start + str_len + pad
     entry_end = hash_start + 8
     if entry_end > len(data):
-        return None
-    # Verify null terminator
-    if data[path_start + str_len] != 0x00:
         return None
     return entry_end - pos
 
@@ -99,22 +96,20 @@ def _scan_array_bounds(data: bytes, ca_offset: int) -> tuple[int, int, int]:
     - array_end: offset cuối cùng entry cuối cùng của mảng
     - count_offset: offset của int32 array count (ngay trước array_start)
 
-    Scan backward từ ca_offset để tìm entry đầu tiên, scan forward để tìm entry cuối.
+    Scan backward từ ca_offset để tìm entry đầu tiên.
+    Dùng array count để scan forward đúng số lượng entries.
     """
     # --- Scan backward: tìm entry đầu tiên của mảng ---
     array_start = ca_offset
     pos = ca_offset
     while True:
-        # Thử lùi: scan từng byte backward tìm entry hợp lệ ngay trước pos
         found_prev = False
-        # Thử mỗi khoảng cách possible (entry sizes từ 12 đến 320 bytes)
         for try_back in range(12, 320):
             prev_pos = pos - try_back
             if prev_pos < 0:
                 break
             entry_sz = _entry_size_at(data, prev_pos)
             if entry_sz is not None and prev_pos + entry_sz == pos:
-                # Entry trước kết thúc ngay tại pos → liên tiếp
                 array_start = prev_pos
                 pos = prev_pos
                 found_prev = True
@@ -122,20 +117,21 @@ def _scan_array_bounds(data: bytes, ca_offset: int) -> tuple[int, int, int]:
         if not found_prev:
             break
 
-    # --- Scan forward: tìm entry cuối cùng của mảng ---
-    array_end = ca_offset + _CA_ENTRY_SIZE
-    pos = array_end
-    while True:
+    # --- Tìm array count: int32 LE ngay trước array_start ---
+    count_offset = array_start - 4
+    if count_offset < 0:
+        return array_start, ca_offset + _CA_ENTRY_SIZE, -1
+
+    array_count = struct.unpack_from("<I", data, count_offset)[0]
+
+    # --- Scan forward TOÀN BỘ mảng dùng array_count ---
+    pos = array_start
+    for _ in range(array_count):
         entry_sz = _entry_size_at(data, pos)
         if entry_sz is None:
             break
         pos += entry_sz
-        array_end = pos
-
-    # --- Tìm array count: int32 LE ngay trước array_start ---
-    count_offset = array_start - 4
-    if count_offset < 0:
-        count_offset = -1
+    array_end = pos
 
     return array_start, array_end, count_offset
 
