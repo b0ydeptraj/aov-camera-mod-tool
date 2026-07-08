@@ -20,8 +20,12 @@ except ImportError:
 
 
 TARGET_ENTRIES = (
-    "commonresource/Dance.xml",
-    "PassiveResource/junglemark.xml",
+    "commonresource/Back.xml",           # camera chính - xa/gần
+    "commonresource/Born.xml",           # camera lúc spawn
+    "commonresource/Dance.xml",          # camera idle
+    "commonresource/HasteE1.xml",        # camera lúc tăng tốc
+    "commonresource/HasteE1_leave.xml",  # camera sau tăng tốc
+    "PassiveResource/junglemark.xml",    # camera jungle
 )
 
 PKG_MAGIC = b"\x22\x4a\x00\xef"
