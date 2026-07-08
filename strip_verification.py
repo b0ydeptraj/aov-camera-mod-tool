@@ -41,9 +41,12 @@ class StripResult:
 #  Hằng số                                                            #
 # ------------------------------------------------------------------ #
 
-_CA_PATH_ORIGINAL = b"CommonActions"
-_CA_PATH_CORRUPTED = b"Commonactions"
 _SEARCH_PATTERN = b"Ages/Prefab_Characters/Prefab_Hero/CommonActions.pkg.bytes"
+# Đổi chữ 'C' đầu tiên trong 'CommonActions' thành 'X'
+# → path trở thành "...XommonActions.pkg.bytes" — không tồn tại trên bất kỳ OS nào
+_CORRUPT_BYTE_OFFSET_IN_PATTERN = _SEARCH_PATTERN.find(b"CommonActions")
+_ORIGINAL_BYTE = ord('C')   # 0x43
+_CORRUPT_BYTE  = ord('X')   # 0x58
 
 
 # ------------------------------------------------------------------ #
@@ -53,13 +56,16 @@ _SEARCH_PATTERN = b"Ages/Prefab_Characters/Prefab_Hero/CommonActions.pkg.bytes"
 def _corrupt_common_actions_path(data: bytearray) -> tuple[bytearray, bool, str]:
     """
     Tìm entry CommonActions trong raw file bytes và sửa 1 byte trong path.
-    Đổi 'CommonActions' → 'Commonactions' (chữ 'A' → 'a').
+    Đổi 'C' → 'X': 'CommonActions' → 'XommonActions'
+    Path kết quả hoàn toàn không tồn tại → game bỏ qua verification.
     """
     idx = data.find(_SEARCH_PATTERN)
 
     if idx < 0:
-        corrupted_pattern = _SEARCH_PATTERN.replace(_CA_PATH_ORIGINAL, _CA_PATH_CORRUPTED)
-        if data.find(corrupted_pattern) >= 0:
+        # Kiểm tra đã bypass trước đó chưa (X thay C)
+        corrupted_pattern = bytearray(_SEARCH_PATTERN)
+        corrupted_pattern[_CORRUPT_BYTE_OFFSET_IN_PATTERN] = _CORRUPT_BYTE
+        if bytes(corrupted_pattern) in data:
             return data, False, "✅  File đã được bypass trước đó — không cần xử lý."
 
         if b"CommonActions" in data:
@@ -69,26 +75,28 @@ def _corrupt_common_actions_path(data: bytearray) -> tuple[bytearray, bool, str]
             )
         return data, False, "✅  Không tìm thấy CommonActions — file đã sạch."
 
-    # Vị trí chữ 'A' trong 'Actions'
-    ca_offset_in_pattern = _SEARCH_PATTERN.find(_CA_PATH_ORIGINAL)
-    target_byte_offset = idx + ca_offset_in_pattern + len(b"Common")
+    # Vị trí byte 'C' đầu tiên của 'CommonActions' trong file
+    target_byte_offset = idx + _CORRUPT_BYTE_OFFSET_IN_PATTERN
 
-    if data[target_byte_offset] != ord('A'):
+    if data[target_byte_offset] != _ORIGINAL_BYTE:
         return data, False, (
-            f"⚠️  Byte tại offset 0x{target_byte_offset:X} không phải 'A'. "
-            f"Cấu trúc bất thường."
+            f"⚠️  Byte tại offset 0x{target_byte_offset:X} không phải 'C' "
+            f"(là 0x{data[target_byte_offset]:02X}). Cấu trúc bất thường."
         )
 
-    # Sửa 1 byte: 'A' (0x41) → 'a' (0x61)
-    data[target_byte_offset] = ord('a')
+    # Sửa 1 byte: 'C' (0x43) → 'X' (0x58)
+    data[target_byte_offset] = _CORRUPT_BYTE
 
     msg = (
         f"✅  Đã bypass verification cho CommonActions.\n"
-        f"    Sửa 1 byte tại offset 0x{target_byte_offset:X}: 'A' → 'a'\n"
-        f"    Path: ...Commonactions.pkg.bytes\n"
-        f"    Cấu trúc file 100% nguyên vẹn."
+        f"    Sửa 1 byte tại offset 0x{target_byte_offset:X}: "
+        f"'C' (0x{_ORIGINAL_BYTE:02X}) → 'X' (0x{_CORRUPT_BYTE:02X})\n"
+        f"    Path trong danh sách: ...XommonActions.pkg.bytes\n"
+        f"    File này không tồn tại → game bỏ qua verification.\n"
+        f"    Cấu trúc file 100% nguyên vẹn, chỉ khác 1 byte."
     )
     return data, True, msg
+
 
 
 # ------------------------------------------------------------------ #
