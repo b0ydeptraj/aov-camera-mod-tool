@@ -2,23 +2,18 @@
 """
 strip_verification.py
 ---------------------
-Vô hiệu hoá verification entry của CommonActions.pkg.bytes
-trong resourceverificationinfosetall.assetbundle.
+Xoá entry CommonActions.pkg.bytes khỏi
+resourceverificationinfosetall.assetbundle.
 
-Cơ chế (Bypass v3 - path corruption):
-  Thay vì XOÁ entry (gây lệch cấu trúc serialized data),
-  chỉ SỬA 1 byte trong path để game không tìm thấy file.
+Cơ chế:
+  1. Tìm path string "Ages/Prefab_Characters/Prefab_Hero/CommonActions.pkg.bytes"
+     trong raw file bytes.
+  2. Xác định entry boundary: [4B path_len] [path] [align pad] [8B hash]
+  3. Dịch toàn bộ data sau entry lên, lấp chỗ trống bằng 0x00 ở cuối.
+  4. Giảm array count đi 1.
+  5. File size giữ nguyên (pad zeros ở cuối data region).
 
-  Game đọc danh sách verification tuần tự. Khi gặp entry có path
-  "...Commonactions.pkg.bytes" (chữ 'a' thường thay vì 'A'),
-  game sẽ không tìm thấy file đó → bỏ qua.
-  File thật "CommonActions.pkg.bytes" không có trong danh sách → không bị check hash.
-
-Ưu điểm:
-  - Chỉ thay 1 byte, KHÔNG shift, KHÔNG đổi count, KHÔNG đổi cấu trúc.
-  - 100% giữ nguyên cấu trúc Unity SerializedFile.
-  - Không gây lệch sequential reader.
-  - File size giữ nguyên.
+Đây là cách tool cũ hoạt động thành công ở các mùa trước.
 """
 
 import struct
@@ -42,61 +37,153 @@ class StripResult:
 # ------------------------------------------------------------------ #
 
 _SEARCH_PATTERN = b"Ages/Prefab_Characters/Prefab_Hero/CommonActions.pkg.bytes"
-# Đổi chữ 'C' đầu tiên trong 'CommonActions' thành 'X'
-# → path trở thành "...XommonActions.pkg.bytes" — không tồn tại trên bất kỳ OS nào
-_CORRUPT_BYTE_OFFSET_IN_PATTERN = _SEARCH_PATTERN.find(b"CommonActions")
-_ORIGINAL_BYTE = ord('C')   # 0x43
-_CORRUPT_BYTE  = ord('X')   # 0x58
+_UNITYFS_MAGIC = b"UnityFS\x00"
 
 
 # ------------------------------------------------------------------ #
-#  Bypass logic                                                       #
+#  Tìm entry và xoá                                                   #
 # ------------------------------------------------------------------ #
 
-def _corrupt_common_actions_path(data: bytearray) -> tuple[bytearray, bool, str]:
+def _find_entry_bounds(data: bytearray) -> tuple[int, int, int] | None:
     """
-    Tìm entry CommonActions trong raw file bytes và sửa 1 byte trong path.
-    Đổi 'C' → 'X': 'CommonActions' → 'XommonActions'
-    Path kết quả hoàn toàn không tồn tại → game bỏ qua verification.
+    Tìm entry CommonActions trong data.
+    Entry format: [4B path_len LE] [path bytes] [align to 4] [8B hash]
+
+    Returns: (entry_start, entry_end, path_len_value) hoặc None nếu không tìm thấy.
     """
     idx = data.find(_SEARCH_PATTERN)
-
     if idx < 0:
-        # Kiểm tra đã bypass trước đó chưa (X thay C)
-        corrupted_pattern = bytearray(_SEARCH_PATTERN)
-        corrupted_pattern[_CORRUPT_BYTE_OFFSET_IN_PATTERN] = _CORRUPT_BYTE
-        if bytes(corrupted_pattern) in data:
-            return data, False, "✅  File đã được bypass trước đó — không cần xử lý."
+        return None
 
-        if b"CommonActions" in data:
-            return data, False, (
-                "⚠️  Tìm thấy tên 'CommonActions' nhưng không khớp format chuẩn.\n"
-                "    Có thể phiên bản game đã thay đổi cấu trúc."
-            )
-        return data, False, "✅  Không tìm thấy CommonActions — file đã sạch."
+    # path_len nằm 4 bytes trước path string
+    path_len_off = idx - 4
+    if path_len_off < 0:
+        return None
 
-    # Vị trí byte 'C' đầu tiên của 'CommonActions' trong file
-    target_byte_offset = idx + _CORRUPT_BYTE_OFFSET_IN_PATTERN
+    path_len = struct.unpack_from("<I", data, path_len_off)[0]
+    expected_len = len(_SEARCH_PATTERN)
 
-    if data[target_byte_offset] != _ORIGINAL_BYTE:
+    if path_len != expected_len:
+        # Có thể path string bắt đầu trước "Ages/..." (ví dụ có prefix)
+        # Thử tìm path_len phù hợp bằng cách scan ngược
+        for back in range(5, 80):
+            test_off = idx - back
+            if test_off < 4:
+                break
+            test_len = struct.unpack_from("<I", data, test_off)[0]
+            if test_len == back:
+                path_len_off = test_off
+                path_len = test_len
+                break
+        else:
+            return None
+
+    # Entry start = path_len field
+    entry_start = path_len_off
+
+    # After path: align to 4 bytes, then 8 bytes hash
+    align_pad = (4 - (path_len % 4)) % 4
+    hash_end = entry_start + 4 + path_len + align_pad + 8
+    entry_end = hash_end
+
+    return entry_start, entry_end, path_len
+
+
+def _find_array_count_offset(data: bytearray, entry_start: int) -> int | None:
+    """
+    Tìm array count field (4 bytes LE) nằm trước entry đầu tiên trong mảng.
+    Count nằm trước Behaviac entry (entry đầu tiên), không phải trước CommonActions.
+    Scan ngược từ entry_start tới 200 bytes để tìm uint32 hợp lý.
+    """
+    for back in range(4, 200, 4):
+        test_off = entry_start - back
+        if test_off < 0:
+            break
+        val = struct.unpack_from("<I", data, test_off)[0]
+        # Array count phải > 0 và hợp lý (khoảng 100-1000 entries)
+        if 50 < val < 10000:
+            return test_off
+    return None
+
+
+def _strip_entry(data: bytearray) -> tuple[bytearray, bool, str]:
+    """
+    Xoá entry CommonActions bằng cách dịch bytes và giảm count.
+    """
+    bounds = _find_entry_bounds(data)
+    if bounds is None:
+        # Kiểm tra đã xoá trước đó chưa
+        if b"CommonActions" not in data:
+            return data, False, "✅  Không tìm thấy CommonActions — file đã sạch."
         return data, False, (
-            f"⚠️  Byte tại offset 0x{target_byte_offset:X} không phải 'C' "
-            f"(là 0x{data[target_byte_offset]:02X}). Cấu trúc bất thường."
+            "⚠️  Tìm thấy 'CommonActions' nhưng không xác định được entry boundary.\n"
+            "    Có thể cấu trúc file đã thay đổi."
         )
 
-    # Sửa 1 byte: 'C' (0x43) → 'X' (0x58)
-    data[target_byte_offset] = _CORRUPT_BYTE
+    entry_start, entry_end, path_len = bounds
+    entry_size = entry_end - entry_start
+
+    # Tìm data region boundary
+    # Block info nằm ở cuối file (flag 0x40 trong UnityFS header)
+    # Đọc compressed block info size từ header
+    pos = 12
+    while pos < len(data) and data[pos] != 0:
+        pos += 1
+    pos += 1  # skip null
+    while pos < len(data) and data[pos] != 0:
+        pos += 1
+    pos += 1  # skip null
+
+    comp_info_size = struct.unpack_from(">I", data, pos + 8)[0]
+    flags = struct.unpack_from(">I", data, pos + 16)[0]
+
+    has_dir_at_end = (flags & 0x40) != 0
+    if has_dir_at_end:
+        data_region_end = len(data) - comp_info_size
+    else:
+        data_region_end = len(data)
+
+    # Dịch bytes: mọi thứ sau entry dịch lên entry_size bytes
+    shift_src = entry_end
+    shift_dst = entry_start
+    shift_len = data_region_end - entry_end
+
+    if shift_len > 0:
+        data[shift_dst:shift_dst + shift_len] = data[shift_src:shift_src + shift_len]
+
+    # Pad zeros ở cuối data region
+    pad_start = shift_dst + shift_len
+    data[pad_start:pad_start + entry_size] = b"\x00" * entry_size
+
+    # Giảm array count
+    count_off = _find_array_count_offset(data, entry_start)
+    count_msg = ""
+    if count_off is not None:
+        old_count = struct.unpack_from("<I", data, count_off)[0]
+        struct.pack_into("<I", data, count_off, old_count - 1)
+        count_msg = (
+            f"    Array count: {old_count} → {old_count - 1} "
+            f"(offset 0x{count_off:X})\n"
+        )
+    else:
+        count_msg = "    ⚠️  Không tìm thấy array count — chỉ dịch bytes.\n"
+
+    # Verify
+    still_found = data.find(b"CommonActions")
 
     msg = (
-        f"✅  Đã bypass verification cho CommonActions.\n"
-        f"    Sửa 1 byte tại offset 0x{target_byte_offset:X}: "
-        f"'C' (0x{_ORIGINAL_BYTE:02X}) → 'X' (0x{_CORRUPT_BYTE:02X})\n"
-        f"    Path trong danh sách: ...XommonActions.pkg.bytes\n"
-        f"    File này không tồn tại → game bỏ qua verification.\n"
-        f"    Cấu trúc file 100% nguyên vẹn, chỉ khác 1 byte."
+        f"✅  Đã xoá entry CommonActions khỏi verification.\n"
+        f"    Entry: offset 0x{entry_start:X}–0x{entry_end:X} ({entry_size} bytes)\n"
+        f"    Dịch {shift_len} bytes lên, pad {entry_size} bytes zeros.\n"
+        f"{count_msg}"
     )
-    return data, True, msg
 
+    if still_found >= 0:
+        msg += f"    ⚠️  Vẫn còn 'CommonActions' tại 0x{still_found:X} — có thể có nhiều entry.\n"
+    else:
+        msg += "    ✓  Xác nhận: CommonActions đã bị xoá hoàn toàn.\n"
+
+    return data, True, msg
 
 
 # ------------------------------------------------------------------ #
@@ -108,22 +195,22 @@ def strip_common_actions_from_bundle(
     output_path: Path,
 ) -> StripResult:
     """
-    Đọc resourceverificationinfosetall.assetbundle, vô hiệu hoá entry
-    CommonActions bằng cách sửa 1 byte trong path, lưu ra output_path.
+    Đọc resourceverificationinfosetall.assetbundle, xoá entry
+    CommonActions, lưu ra output_path.
     """
     try:
         data = bytearray(input_path.read_bytes())
     except Exception as e:
         return StripResult(False, f"Không đọc được file: {e}")
 
-    if data[:8] != b"UnityFS\x00":
+    if data[:8] != _UNITYFS_MAGIC:
         return StripResult(False, "Không phải file UnityFS hợp lệ.")
 
-    data, modified, msg = _corrupt_common_actions_path(data)
+    data, modified, msg = _strip_entry(data)
 
     if not modified:
         return StripResult(
-            success="đã sạch" in msg or "đã được bypass" in msg,
+            success="đã sạch" in msg or "đã được" in msg,
             message=msg,
             output_path=None,
         )
