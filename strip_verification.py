@@ -5,11 +5,13 @@ strip_verification.py
 Vô hiệu hoá entry CommonActions.pkg.bytes trong
 resourceverificationinfosetall.assetbundle.
 
-Cơ chế (v4 - zero path, giữ nguyên cấu trúc):
+Cơ chế (v5 - rename path, giữ nguyên 100% cấu trúc):
   1. Tìm path string "Ages/Prefab_Characters/Prefab_Hero/CommonActions.pkg.bytes"
-  2. Zero toàn bộ path bytes + hash → path rỗng, game không match → bỏ qua
-  3. KHÔNG dịch bytes, KHÔNG đổi count, KHÔNG đổi size
-  4. File size giữ nguyên, cấu trúc SerializedFile 100% nguyên vẹn
+  2. Thay NỘI DUNG path bằng chuỗi cùng độ dài nhưng khác tên
+     "Ages/Prefab_Characters/Prefab_Hero/_ommonActions.pkg.bytes"
+     (Thay 'C' đầu thành '_' — ký tự hợp lệ nhưng không tồn tại)
+  3. KHÔNG zero path_len, KHÔNG dịch bytes, KHÔNG đổi count
+  4. Cấu trúc SerializedFile 100% nguyên vẹn, Unity reader parse bình thường
 """
 
 import struct
@@ -24,7 +26,7 @@ from pathlib import Path
 @dataclass
 class StripResult:
     success: bool
-    message: str        # Hiển thị cho người dùng
+    message: str
     output_path: Path | None = None
 
 
@@ -35,84 +37,59 @@ class StripResult:
 _SEARCH_PATTERN = b"Ages/Prefab_Characters/Prefab_Hero/CommonActions.pkg.bytes"
 _UNITYFS_MAGIC = b"UnityFS\x00"
 
+# Thay 'C' trong 'CommonActions' thành '_'
+# → "_ommonActions.pkg.bytes" — file không tồn tại trên bất kỳ OS
+_REPLACE_OFFSET = _SEARCH_PATTERN.index(b"CommonActions")
+_ORIGINAL_CHAR = ord('C')   # 0x43
+_REPLACE_CHAR  = ord('_')   # 0x5F
+
 
 # ------------------------------------------------------------------ #
-#  Tìm entry và vô hiệu hoá                                          #
+#  Logic                                                               #
 # ------------------------------------------------------------------ #
 
-def _find_hash_offset(data: bytearray, path_idx: int, path_len: int) -> int:
-    """Tính offset của hash (8 bytes) sau path string + align pad."""
-    align_pad = (4 - (path_len % 4)) % 4
-    return path_idx + path_len + align_pad
-
-
-def _nullify_entry(data: bytearray) -> tuple[bytearray, bool, str]:
+def _rename_entry(data: bytearray) -> tuple[bytearray, bool, str]:
     """
-    Vô hiệu hoá entry CommonActions bằng cách zero path + hash.
-    Không dịch bytes, không đổi count, không phá cấu trúc.
+    Rename path CommonActions → _ommonActions trong verification list.
+    Chỉ thay 1 byte, giữ nguyên tuyệt đối mọi thứ khác.
     """
     idx = data.find(_SEARCH_PATTERN)
 
     if idx < 0:
-        # Kiểm tra đã xử lý trước đó chưa
+        # Kiểm tra đã rename trước đó chưa
+        renamed = bytearray(_SEARCH_PATTERN)
+        renamed[_REPLACE_OFFSET] = _REPLACE_CHAR
+        if bytes(renamed) in data:
+            return data, False, "Da xu ly truoc do — entry da duoc rename thanh _ommonActions."
+
         if b"CommonActions" not in data:
-            return data, False, "Da xu ly roi — CommonActions khong con trong file."
+            return data, False, "Khong tim thay CommonActions trong file."
+
         return data, False, (
-            "Tim thay 'CommonActions' nhung khong khop pattern chuan.\n"
+            "Tim thay 'CommonActions' nhung khong khop pattern day du.\n"
             "    Co the phien ban game da thay doi cau truc."
         )
 
-    # path_len nằm 4 bytes trước path string
-    path_len_off = idx - 4
-    if path_len_off < 0:
-        return data, False, "Khong xac dinh duoc path_len offset."
+    # Vị trí byte 'C' cần thay
+    target_offset = idx + _REPLACE_OFFSET
 
-    path_len = struct.unpack_from("<I", data, path_len_off)[0]
+    if data[target_offset] != _ORIGINAL_CHAR:
+        return data, False, (
+            f"Byte tai offset 0x{target_offset:X} khong phai 'C' "
+            f"(la 0x{data[target_offset]:02X}). Cau truc bat thuong."
+        )
 
-    # Verify path_len khớp
-    if path_len != len(_SEARCH_PATTERN):
-        # Thử tìm path_len field chính xác
-        found = False
-        for back in range(5, 80):
-            test_off = idx - back
-            if test_off < 4:
-                break
-            test_len = struct.unpack_from("<I", data, test_off)[0]
-            if test_len == back:
-                path_len_off = test_off
-                path_len = test_len
-                idx = test_off + 4  # path starts after len field
-                found = True
-                break
-        if not found:
-            return data, False, "Khong xac dinh duoc entry boundary."
-
-    hash_off = _find_hash_offset(data, idx, path_len)
-
-    # Lưu hash cũ để log
-    old_hash = data[hash_off:hash_off + 8].hex()
-
-    # === ZERO PATH + HASH ===
-    # Zero path_len field (4 bytes)
-    data[path_len_off:path_len_off + 4] = b"\x00" * 4
-
-    # Zero path bytes
-    data[idx:idx + path_len] = b"\x00" * path_len
-
-    # Zero hash (8 bytes)
-    data[hash_off:hash_off + 8] = b"\x00" * 8
-
-    total_zeroed = 4 + path_len + 8  # path_len field + path + hash
-    # align pad bytes between path and hash are already padding, leave them
+    # Thay 1 byte: 'C' (0x43) → '_' (0x5F)
+    data[target_offset] = _REPLACE_CHAR
 
     msg = (
         f"Da vo hieu hoa entry CommonActions trong verification.\n"
-        f"    Zero {total_zeroed} bytes: path_len(4) + path({path_len}) + hash(8)\n"
-        f"    Hash cu: {old_hash}\n"
-        f"    Offset: 0x{path_len_off:X}–0x{hash_off + 8:X}\n"
-        f"    Cau truc file 100% nguyen ven, khong dich bytes."
+        f"    Doi 1 byte tai offset 0x{target_offset:X}: "
+        f"'C' (0x{_ORIGINAL_CHAR:02X}) -> '_' (0x{_REPLACE_CHAR:02X})\n"
+        f"    Path moi: ..._ommonActions.pkg.bytes\n"
+        f"    File nay khong ton tai -> game bo qua verification.\n"
+        f"    Cau truc file 100% nguyen ven, chi khac 1 byte."
     )
-
     return data, True, msg
 
 
@@ -125,8 +102,8 @@ def strip_common_actions_from_bundle(
     output_path: Path,
 ) -> StripResult:
     """
-    Đọc resourceverificationinfosetall.assetbundle, vô hiệu hoá entry
-    CommonActions bằng cách zero path+hash, lưu ra output_path.
+    Đọc resourceverificationinfosetall.assetbundle, rename entry
+    CommonActions → _ommonActions, lưu ra output_path.
     """
     try:
         data = bytearray(input_path.read_bytes())
@@ -136,7 +113,7 @@ def strip_common_actions_from_bundle(
     if data[:8] != _UNITYFS_MAGIC:
         return StripResult(False, "Khong phai file UnityFS hop le.")
 
-    data, modified, msg = _nullify_entry(data)
+    data, modified, msg = _rename_entry(data)
 
     if not modified:
         return StripResult(
