@@ -1,0 +1,88 @@
+[
+  {
+    "id": "data-persistence-battle-read-first",
+    "skill": "data-persistence",
+    "repo_profile": "public Python service repo with serializer, retry, cache, and session tests",
+    "task": "trace a backend behavior bug from source file to test anchor without guessing from filenames only Use `data-persistence` and cite the first files before advice.",
+    "expected_files": [
+      "src/service/session.py",
+      "src/service/retry.py",
+      "tests/test_session.py"
+    ],
+    "expected_symbols": [
+      "SessionManager",
+      "retry_request"
+    ],
+    "expected_tests": [
+      "tests/test_session.py"
+    ],
+    "expected_evidence_terms": [
+      "session",
+      "retry",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "data-persistence-public-repo-benchmark-anchor",
+    "skill": "data-persistence",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `data-persistence` and explain what evidence is still missing.",
+    "expected_files": [
+      "src/service/session.py",
+      "tests/test_session.py"
+    ],
+    "expected_symbols": [
+      "SessionManager"
+    ],
+    "expected_tests": [
+      "tests/test_session.py"
+    ],
+    "expected_evidence_terms": [
+      "cache",
+      "transaction boundary",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "data-persistence-deep-weakness-trap",
+    "skill": "data-persistence",
+    "repo_profile": "deep backend suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `data-persistence` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "src/service/session.py",
+      "src/service/retry.py",
+      "tests/test_session.py"
+    ],
+    "expected_symbols": [
+      "SessionManager",
+      "retry_request"
+    ],
+    "expected_tests": [
+      "tests/test_session.py"
+    ],
+    "expected_evidence_terms": [
+      "session",
+      "transaction boundary",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

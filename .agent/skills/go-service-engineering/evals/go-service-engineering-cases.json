@@ -1,0 +1,95 @@
+[
+  {
+    "id": "go-service-engineering-battle-read-first",
+    "skill": "go-service-engineering",
+    "repo_profile": "public Go API service with handler, service, repository, middleware, and httptest coverage",
+    "task": "trace a Go request from handler to service and repo, then identify context cancellation and httptest evidence before changing behavior Use `go-service-engineering` and cite the first files before advice.",
+    "expected_files": [
+      "cmd/api/main.go",
+      "internal/http/user_handler.go",
+      "internal/service/user_service.go"
+    ],
+    "expected_symbols": [
+      "UserHandler",
+      "UserService"
+    ],
+    "expected_tests": [
+      "internal/service/user_service_test.go"
+    ],
+    "expected_evidence_terms": [
+      "handler boundary",
+      "context cancellation",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "handler-only review",
+      "context ignored",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "go-service-engineering-public-repo-benchmark-anchor",
+    "skill": "go-service-engineering",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `go-service-engineering` and explain what evidence is still missing.",
+    "expected_files": [
+      "cmd/api/main.go",
+      "internal/service/user_service_test.go"
+    ],
+    "expected_symbols": [
+      "UserHandler"
+    ],
+    "expected_tests": [
+      "internal/service/user_service_test.go"
+    ],
+    "expected_evidence_terms": [
+      "transaction boundary",
+      "httptest",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "context ignored",
+      "transaction skipped",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "go-service-engineering-deep-weakness-trap",
+    "skill": "go-service-engineering",
+    "repo_profile": "deep service-boundary suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `go-service-engineering` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "cmd/api/main.go",
+      "internal/http/user_handler.go",
+      "internal/service/user_service_test.go"
+    ],
+    "expected_symbols": [
+      "UserHandler",
+      "UserService"
+    ],
+    "expected_tests": [
+      "internal/service/user_service_test.go"
+    ],
+    "expected_evidence_terms": [
+      "handler boundary",
+      "httptest",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "handler-only review",
+      "context ignored",
+      "transaction skipped",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

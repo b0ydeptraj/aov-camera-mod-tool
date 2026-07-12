@@ -1,0 +1,81 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "mmo-identity-infrastructure",
+  "role": "mmo-identity-infrastructure",
+  "category": "mmo-safe-ops",
+  "core_competencies": [
+    {
+      "id": "mmo-safe-ops.profile-inventory",
+      "label": "Maintain profile, account, device, and session inventory.",
+      "evidence_terms": [
+        "profile",
+        "account",
+        "session"
+      ],
+      "archetypes": [
+        "mmo-safe-ops"
+      ]
+    },
+    {
+      "id": "mmo-safe-ops.quota-dedupe",
+      "label": "Use quotas, dedupe keys, and pacing controls.",
+      "evidence_terms": [
+        "quota",
+        "dedupe",
+        "pacing"
+      ],
+      "archetypes": [
+        "mmo-safe-ops"
+      ]
+    },
+    {
+      "id": "mmo-safe-ops.policy-safe-api",
+      "label": "Prefer official APIs and policy-safe execution boundaries.",
+      "evidence_terms": [
+        "official api",
+        "policy",
+        "scope"
+      ],
+      "archetypes": [
+        "mmo-safe-ops"
+      ]
+    },
+    {
+      "id": "mmo-safe-ops.operator-ledger",
+      "label": "Record redacted logs, run queues, and operator decisions.",
+      "evidence_terms": [
+        "ledger",
+        "queue",
+        "redacted"
+      ],
+      "archetypes": [
+        "mmo-safe-ops"
+      ]
+    },
+    {
+      "id": "mmo-safe-ops.manual-review-gate",
+      "label": "Escalate risky or ambiguous actions to manual review.",
+      "evidence_terms": [
+        "manual review",
+        "risk",
+        "approval"
+      ],
+      "archetypes": [
+        "mmo-safe-ops"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "mmo-safe-ops.platform-risk-blindness",
+      "description": "Ignores platform policy, consent, or quota boundaries."
+    },
+    {
+      "id": "mmo-safe-ops.bulk-action-without-ledger",
+      "description": "Designs bulk operations without audit or rollback evidence."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-26T16:45:32.610309+00:00"
+}

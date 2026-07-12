@@ -1,0 +1,33 @@
+{
+  "schema_version": "relay-kit.agent-profile.v1",
+  "id": "relay-growth",
+  "display_name": "Relay Growth",
+  "intent": "Drive research-backed growth execution with measurable launch and support artifacts.",
+  "route_contract": [
+    "research",
+    "market-research",
+    "growth-marketing",
+    "automation-ops"
+  ],
+  "required_skills": [
+    "research",
+    "market-research",
+    "growth-marketing",
+    "automation-ops"
+  ],
+  "optional_skills": [
+    "vietnamese-product-localization",
+    "qa-governor",
+    "release-readiness"
+  ],
+  "expected_evidence": [
+    "source-ranked research findings with pricing and ICP implications",
+    "campaign and funnel plan with launch QA checklist",
+    "automation runbook with dry-run and rollback discipline"
+  ],
+  "adapter_support": [
+    "codex",
+    "claude",
+    "agent"
+  ]
+}

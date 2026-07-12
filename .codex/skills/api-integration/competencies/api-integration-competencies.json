@@ -1,0 +1,86 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "api-integration",
+  "role": "integration-support",
+  "category": "api-integration",
+  "core_competencies": [
+    {
+      "id": "api-integration.client-endpoint-contract",
+      "label": "Map client, endpoint, and request/response contracts.",
+      "evidence_terms": [
+        "client",
+        "endpoint",
+        "request",
+        "response"
+      ],
+      "archetypes": [
+        "backend-api",
+        "api-client"
+      ]
+    },
+    {
+      "id": "api-integration.auth-scope",
+      "label": "Check auth, token, permission, and secret handling.",
+      "evidence_terms": [
+        "auth",
+        "token",
+        "scope"
+      ],
+      "archetypes": [
+        "api-client",
+        "security-policy"
+      ]
+    },
+    {
+      "id": "api-integration.retry-rate-limit",
+      "label": "Handle retry, backoff, timeout, and rate-limit behavior.",
+      "evidence_terms": [
+        "retry",
+        "backoff",
+        "rate limit"
+      ],
+      "archetypes": [
+        "api-client",
+        "automation-worker"
+      ]
+    },
+    {
+      "id": "api-integration.idempotency",
+      "label": "Protect writes, webhooks, and replayed requests with idempotency.",
+      "evidence_terms": [
+        "idempotency",
+        "webhook",
+        "replay"
+      ],
+      "archetypes": [
+        "backend-api",
+        "commerce-api"
+      ]
+    },
+    {
+      "id": "api-integration.contract-test-anchor",
+      "label": "Find or require contract, integration, or fixture evidence.",
+      "evidence_terms": [
+        "contract test",
+        "integration test",
+        "fixture"
+      ],
+      "archetypes": [
+        "backend-api"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "api-integration.checklist-without-contract",
+      "description": "Mentions API advice without naming the contract surface."
+    },
+    {
+      "id": "api-integration.retry-without-idempotency",
+      "description": "Adds retry language without replay or idempotency evidence."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

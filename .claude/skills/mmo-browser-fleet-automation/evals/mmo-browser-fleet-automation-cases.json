@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mmo-browser-fleet-automation-battle-read-first",
+    "skill": "mmo-browser-fleet-automation",
+    "repo_profile": "operator-owned browser fleet repo with profile inventory, proxy affinity, session lease, screenshot, and console logs",
+    "task": "review browser fleet automation for profile-to-proxy affinity, session lease, live debug, screenshot, and console log evidence Use `mmo-browser-fleet-automation` and cite the first files before advice.",
+    "expected_files": [
+      "ops/browser_profiles.json",
+      "workers/browser_session.ts",
+      "tests/browser_session.test.ts"
+    ],
+    "expected_symbols": [
+      "SessionLease",
+      "BrowserSessionRunner"
+    ],
+    "expected_tests": [
+      "tests/browser_session.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "session lease",
+      "profile-to-proxy affinity",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "session reuse without lease",
+      "proxy affinity ignored",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "mmo-browser-fleet-automation-public-repo-benchmark-anchor",
+    "skill": "mmo-browser-fleet-automation",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `mmo-browser-fleet-automation` and explain what evidence is still missing.",
+    "expected_files": [
+      "ops/browser_profiles.json",
+      "artifacts/session-screenshot.md"
+    ],
+    "expected_symbols": [
+      "SessionLease"
+    ],
+    "expected_tests": [
+      "tests/browser_session.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "console logs",
+      "operator ledger",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "proxy affinity ignored",
+      "screenshot-only proof",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "mmo-browser-fleet-automation-deep-weakness-trap",
+    "skill": "mmo-browser-fleet-automation",
+    "repo_profile": "deep mmo-browser-session-lease suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `mmo-browser-fleet-automation` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "ops/browser_profiles.json",
+      "workers/browser_session.ts",
+      "artifacts/session-screenshot.md"
+    ],
+    "expected_symbols": [
+      "SessionLease",
+      "BrowserSessionRunner"
+    ],
+    "expected_tests": [
+      "tests/browser_session.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "session lease",
+      "operator ledger",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "session reuse without lease",
+      "proxy affinity ignored",
+      "screenshot-only proof",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

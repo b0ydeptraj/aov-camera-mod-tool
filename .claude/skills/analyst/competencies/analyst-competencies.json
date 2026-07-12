@@ -1,0 +1,82 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "analyst",
+  "role": "analysis",
+  "category": "research-product",
+  "core_competencies": [
+    {
+      "id": "research-product.source-triangulation",
+      "label": "Use multiple sources or artifacts before making a claim.",
+      "evidence_terms": [
+        "source",
+        "artifact",
+        "evidence"
+      ],
+      "archetypes": [
+        "docs-product",
+        "unknown-domain"
+      ]
+    },
+    {
+      "id": "research-product.audience-fit",
+      "label": "Adapt output to the user, buyer, operator, or maintainer audience.",
+      "evidence_terms": [
+        "audience",
+        "user",
+        "operator"
+      ],
+      "archetypes": [
+        "docs-product"
+      ]
+    },
+    {
+      "id": "research-product.decision-criteria",
+      "label": "State decision criteria, tradeoffs, and confidence.",
+      "evidence_terms": [
+        "criteria",
+        "tradeoff",
+        "confidence"
+      ],
+      "archetypes": [
+        "planning"
+      ]
+    },
+    {
+      "id": "research-product.claim-boundary",
+      "label": "Label unknowns, stale facts, and unverified assumptions.",
+      "evidence_terms": [
+        "unknown",
+        "unverified",
+        "assumption"
+      ],
+      "archetypes": [
+        "all"
+      ]
+    },
+    {
+      "id": "research-product.actionable-output",
+      "label": "Produce next actions, artifacts, or acceptance criteria.",
+      "evidence_terms": [
+        "next action",
+        "artifact",
+        "acceptance"
+      ],
+      "archetypes": [
+        "planning"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "research-product.unsupported-market-claim",
+      "description": "Makes a market/product claim without evidence."
+    },
+    {
+      "id": "research-product.generic-persona-output",
+      "description": "Produces persona or plan text without decision criteria."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

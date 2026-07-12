@@ -1,0 +1,85 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "go-service-engineering",
+  "role": "go-engineering",
+  "category": "go-service-engineering",
+  "core_competencies": [
+    {
+      "id": "go-service-engineering.handler-service-boundary",
+      "label": "Map handler, service, repository, and request lifecycle ownership.",
+      "evidence_terms": [
+        "handler boundary",
+        "service boundary",
+        "request lifecycle"
+      ],
+      "archetypes": [
+        "backend-api"
+      ]
+    },
+    {
+      "id": "go-service-engineering.context-cancellation",
+      "label": "Preserve context cancellation, deadlines, and timeout behavior across service calls.",
+      "evidence_terms": [
+        "context cancellation",
+        "deadline",
+        "timeout"
+      ],
+      "archetypes": [
+        "backend-api",
+        "automation-worker"
+      ]
+    },
+    {
+      "id": "go-service-engineering.middleware-job-ownership",
+      "label": "Separate middleware, background jobs, and worker ownership from request handlers.",
+      "evidence_terms": [
+        "middleware",
+        "job ownership",
+        "worker"
+      ],
+      "archetypes": [
+        "backend-api",
+        "automation-worker"
+      ]
+    },
+    {
+      "id": "go-service-engineering.transaction-cache-boundary",
+      "label": "Name transaction, repository, and cache boundaries before changing service behavior.",
+      "evidence_terms": [
+        "transaction boundary",
+        "cache boundary",
+        "repository"
+      ],
+      "archetypes": [
+        "backend-api",
+        "database-heavy"
+      ]
+    },
+    {
+      "id": "go-service-engineering.httptest-integration-evidence",
+      "label": "Tie service changes to httptest, integration tests, or fixture evidence.",
+      "evidence_terms": [
+        "httptest",
+        "integration test",
+        "test fixture"
+      ],
+      "archetypes": [
+        "backend-api",
+        "test-runner"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "go-service-engineering.handler-only-review",
+      "description": "Reviews only handlers while missing service, repository, transaction, or cache boundaries."
+    },
+    {
+      "id": "go-service-engineering.context-ignored",
+      "description": "Ignores cancellation, deadlines, or timeout propagation in Go service paths."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

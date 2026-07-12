@@ -1,0 +1,7 @@
+{
+  "enabled": false,
+  "scope": "product-enterprise",
+  "gate": "off",
+  "risk_profile": "normal",
+  "updated_at": "2026-07-09T03:43:16Z"
+}

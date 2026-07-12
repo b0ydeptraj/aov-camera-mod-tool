@@ -1,0 +1,82 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "multimodal-evidence",
+  "role": "utility-provider",
+  "category": "frontend-product",
+  "core_competencies": [
+    {
+      "id": "frontend-product.route-component-boundary",
+      "label": "Map route, component, server/client, and data boundaries.",
+      "evidence_terms": [
+        "route",
+        "component",
+        "boundary"
+      ],
+      "archetypes": [
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "frontend-product.state-error-loading",
+      "label": "Handle state, error, loading, and empty states.",
+      "evidence_terms": [
+        "state",
+        "error",
+        "loading"
+      ],
+      "archetypes": [
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "frontend-product.visual-accessibility",
+      "label": "Check visual quality, accessibility, and responsive behavior.",
+      "evidence_terms": [
+        "visual",
+        "accessibility",
+        "responsive"
+      ],
+      "archetypes": [
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "frontend-product.frontend-test-anchor",
+      "label": "Find component, smoke, or end-to-end test evidence.",
+      "evidence_terms": [
+        "component test",
+        "smoke",
+        "e2e"
+      ],
+      "archetypes": [
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "frontend-product.ux-flow-evidence",
+      "label": "Tie UI choices to the user workflow and information hierarchy.",
+      "evidence_terms": [
+        "workflow",
+        "hierarchy",
+        "user"
+      ],
+      "archetypes": [
+        "frontend-app",
+        "docs-product"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "frontend-product.pretty-without-flow",
+      "description": "Optimizes visual surface without proving the workflow works."
+    },
+    {
+      "id": "frontend-product.responsive-claim-without-check",
+      "description": "Claims responsive/accessibility quality without evidence."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "id": "testing-patterns-battle-read-first",
+    "skill": "testing-patterns",
+    "repo_profile": "public test-heavy repo with fixtures, factories, unit tests, integration tests, and a flaky e2e lane",
+    "task": "design the test strategy for a checkout regression, choosing fixture/factory, mock versus integration, and flake controls by risk Use `testing-patterns` and cite the first files before advice.",
+    "expected_files": [
+      "tests/fixtures/user_factory.py",
+      "tests/integration/test_checkout.py",
+      "tests/unit/test_price_rules.py"
+    ],
+    "expected_symbols": [
+      "user_factory",
+      "TestCheckoutFlow"
+    ],
+    "expected_tests": [
+      "tests/fixtures/user_factory.py",
+      "tests/integration/test_checkout.py",
+      "tests/unit/test_price_rules.py",
+      "tests/e2e/test_checkout_flow.py"
+    ],
+    "expected_evidence_terms": [
+      "fixture",
+      "factory",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "coverage percent only",
+      "mock everything",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "testing-patterns-public-repo-benchmark-anchor",
+    "skill": "testing-patterns",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `testing-patterns` and explain what evidence is still missing.",
+    "expected_files": [
+      "tests/fixtures/user_factory.py",
+      "tests/e2e/test_checkout_flow.py"
+    ],
+    "expected_symbols": [
+      "user_factory"
+    ],
+    "expected_tests": [
+      "tests/fixtures/user_factory.py",
+      "tests/integration/test_checkout.py",
+      "tests/unit/test_price_rules.py",
+      "tests/e2e/test_checkout_flow.py"
+    ],
+    "expected_evidence_terms": [
+      "integration boundary",
+      "flake",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "mock everything",
+      "flake ignored",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "testing-patterns-deep-weakness-trap",
+    "skill": "testing-patterns",
+    "repo_profile": "deep test-strategy suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `testing-patterns` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "tests/fixtures/user_factory.py",
+      "tests/integration/test_checkout.py",
+      "tests/e2e/test_checkout_flow.py"
+    ],
+    "expected_symbols": [
+      "user_factory",
+      "TestCheckoutFlow"
+    ],
+    "expected_tests": [
+      "tests/fixtures/user_factory.py",
+      "tests/integration/test_checkout.py",
+      "tests/unit/test_price_rules.py",
+      "tests/e2e/test_checkout_flow.py"
+    ],
+    "expected_evidence_terms": [
+      "fixture",
+      "flake",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "coverage percent only",
+      "mock everything",
+      "flake ignored",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

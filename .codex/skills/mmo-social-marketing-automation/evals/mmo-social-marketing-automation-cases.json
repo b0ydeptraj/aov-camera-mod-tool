@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mmo-social-marketing-automation-battle-read-first",
+    "skill": "mmo-social-marketing-automation",
+    "repo_profile": "operator-owned social campaign repo with content calendar, approval lane, quota meter, reject reason, and campaign ledger",
+    "task": "review social marketing automation with campaign workspace, content calendar, approval lane, quota meter, reject reason, and operator ledger evidence Use `mmo-social-marketing-automation` and cite the first files before advice.",
+    "expected_files": [
+      "ops/campaign_calendar.md",
+      "workers/social_scheduler.ts",
+      "logs/approval-ledger.json"
+    ],
+    "expected_symbols": [
+      "CampaignApproval",
+      "QuotaMeter"
+    ],
+    "expected_tests": [
+      "docs/social-approval-runbook.md"
+    ],
+    "expected_evidence_terms": [
+      "approval lane",
+      "quota meter",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "posting without approval",
+      "quota meter ignored",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "mmo-social-marketing-automation-public-repo-benchmark-anchor",
+    "skill": "mmo-social-marketing-automation",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `mmo-social-marketing-automation` and explain what evidence is still missing.",
+    "expected_files": [
+      "ops/campaign_calendar.md",
+      "docs/social-approval-runbook.md"
+    ],
+    "expected_symbols": [
+      "CampaignApproval"
+    ],
+    "expected_tests": [
+      "docs/social-approval-runbook.md"
+    ],
+    "expected_evidence_terms": [
+      "reject reason",
+      "operator ledger",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "quota meter ignored",
+      "reject reason missing",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "mmo-social-marketing-automation-deep-weakness-trap",
+    "skill": "mmo-social-marketing-automation",
+    "repo_profile": "deep mmo-social-campaign-approval suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `mmo-social-marketing-automation` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "ops/campaign_calendar.md",
+      "workers/social_scheduler.ts",
+      "docs/social-approval-runbook.md"
+    ],
+    "expected_symbols": [
+      "CampaignApproval",
+      "QuotaMeter"
+    ],
+    "expected_tests": [
+      "docs/social-approval-runbook.md"
+    ],
+    "expected_evidence_terms": [
+      "approval lane",
+      "operator ledger",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "posting without approval",
+      "quota meter ignored",
+      "reject reason missing",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

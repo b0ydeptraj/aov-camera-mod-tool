@@ -1,0 +1,82 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "data-persistence",
+  "role": "persistence-support",
+  "category": "data-persistence",
+  "core_competencies": [
+    {
+      "id": "data-persistence.schema-model",
+      "label": "Map schema, model, repository, and storage ownership.",
+      "evidence_terms": [
+        "schema",
+        "model",
+        "repository"
+      ],
+      "archetypes": [
+        "database-heavy"
+      ]
+    },
+    {
+      "id": "data-persistence.transaction-boundary",
+      "label": "Identify transaction, isolation, rollback, and consistency boundaries.",
+      "evidence_terms": [
+        "transaction",
+        "rollback",
+        "consistency"
+      ],
+      "archetypes": [
+        "database-heavy"
+      ]
+    },
+    {
+      "id": "data-persistence.migration-safety",
+      "label": "Check migration path, reversibility, and data backfill risk.",
+      "evidence_terms": [
+        "migration",
+        "backfill",
+        "reversible"
+      ],
+      "archetypes": [
+        "database-heavy"
+      ]
+    },
+    {
+      "id": "data-persistence.cache-index-query",
+      "label": "Inspect cache invalidation, indexes, and query behavior.",
+      "evidence_terms": [
+        "cache",
+        "index",
+        "query"
+      ],
+      "archetypes": [
+        "database-heavy",
+        "backend-api"
+      ]
+    },
+    {
+      "id": "data-persistence.persistence-test-anchor",
+      "label": "Find tests or fixtures proving persistence behavior.",
+      "evidence_terms": [
+        "test",
+        "fixture",
+        "database"
+      ],
+      "archetypes": [
+        "database-heavy"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "data-persistence.schema-only-review",
+      "description": "Reviews schema shape without transaction or migration evidence."
+    },
+    {
+      "id": "data-persistence.query-claim-without-test",
+      "description": "Claims data behavior without test, fixture, or query proof."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

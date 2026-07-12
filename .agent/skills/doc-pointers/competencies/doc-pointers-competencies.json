@@ -1,0 +1,83 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "doc-pointers",
+  "role": "utility-provider",
+  "category": "routing-orchestration",
+  "core_competencies": [
+    {
+      "id": "routing-orchestration.intent-routing",
+      "label": "Choose the right next skill from a compact or ambiguous request.",
+      "evidence_terms": [
+        "route",
+        "intent",
+        "skill"
+      ],
+      "archetypes": [
+        "orchestrator",
+        "unknown-domain"
+      ]
+    },
+    {
+      "id": "routing-orchestration.ask-act-scout",
+      "label": "Decide whether to act, ask one question, or scout first.",
+      "evidence_terms": [
+        "ask",
+        "act",
+        "scout"
+      ],
+      "archetypes": [
+        "orchestrator",
+        "repo-analysis"
+      ]
+    },
+    {
+      "id": "routing-orchestration.state-handoff",
+      "label": "Use workflow state and handoff evidence before changing direction.",
+      "evidence_terms": [
+        "state",
+        "handoff",
+        "evidence"
+      ],
+      "archetypes": [
+        "long-running-lane"
+      ]
+    },
+    {
+      "id": "routing-orchestration.coordination-boundary",
+      "label": "Keep lane ownership and parallel work boundaries explicit.",
+      "evidence_terms": [
+        "ownership",
+        "parallel",
+        "boundary"
+      ],
+      "archetypes": [
+        "multi-agent"
+      ]
+    },
+    {
+      "id": "routing-orchestration.claim-discipline",
+      "label": "Separate proven facts from residual risk and missing evidence.",
+      "evidence_terms": [
+        "verified",
+        "residual risk",
+        "missing evidence"
+      ],
+      "archetypes": [
+        "all"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "routing-orchestration.route-from-name-only",
+      "description": "Routes from skill name or popularity instead of request evidence."
+    },
+    {
+      "id": "routing-orchestration.multi-step-overclaim",
+      "description": "Claims a lane is ready without state, tests, or handoff proof."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

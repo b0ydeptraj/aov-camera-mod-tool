@@ -1,0 +1,89 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "dependency-management",
+  "role": "build-support",
+  "category": "dependency-management",
+  "core_competencies": [
+    {
+      "id": "dependency-management.dependency-drift",
+      "label": "Detect version drift across declared packages, lockfiles, and installed or runtime evidence.",
+      "evidence_terms": [
+        "dependency drift",
+        "lockfile",
+        "declared package"
+      ],
+      "archetypes": [
+        "library-core",
+        "backend-api",
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "dependency-management.source-of-truth",
+      "label": "Choose package manifests and lockfiles as the dependency source of truth before advice.",
+      "evidence_terms": [
+        "source of truth",
+        "package manifest",
+        "lockfile"
+      ],
+      "archetypes": [
+        "library-core",
+        "backend-api",
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "dependency-management.upgrade-risk",
+      "label": "Assess upgrade, downgrade, transitive dependency, and compatibility risk.",
+      "evidence_terms": [
+        "upgrade risk",
+        "transitive",
+        "compatibility"
+      ],
+      "archetypes": [
+        "library-core",
+        "backend-api",
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "dependency-management.supply-chain-boundary",
+      "label": "Check supply-chain, script, registry, and checksum boundaries without running install hooks.",
+      "evidence_terms": [
+        "supply-chain",
+        "install script",
+        "registry"
+      ],
+      "archetypes": [
+        "security-policy",
+        "library-core"
+      ]
+    },
+    {
+      "id": "dependency-management.rollback-pin-strategy",
+      "label": "Name rollback, pin, lockfile restore, or staged rollout evidence before completion.",
+      "evidence_terms": [
+        "rollback",
+        "pin",
+        "staged rollout"
+      ],
+      "archetypes": [
+        "release",
+        "library-core"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "dependency-management.latest-version-chasing",
+      "description": "Recommends latest versions without lockfile or source-of-truth evidence."
+    },
+    {
+      "id": "dependency-management.install-hook-blindness",
+      "description": "Runs or trusts install scripts without supply-chain review."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

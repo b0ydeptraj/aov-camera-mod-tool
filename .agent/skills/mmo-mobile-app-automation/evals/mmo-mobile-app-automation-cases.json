@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mmo-mobile-app-automation-battle-read-first",
+    "skill": "mmo-mobile-app-automation",
+    "repo_profile": "operator-owned mobile automation repo with device inventory, hub/provider mapping, device lease, logcat, and app-state recovery",
+    "task": "review mobile automation with device inventory, hub, provider, lease owner, logcat, and app-state recovery evidence Use `mmo-mobile-app-automation` and cite the first files before advice.",
+    "expected_files": [
+      "ops/devices.json",
+      "workers/mobile_runner.ts",
+      "logs/device-lease.json"
+    ],
+    "expected_symbols": [
+      "DeviceLease",
+      "MobileRunner"
+    ],
+    "expected_tests": [
+      "docs/mobile-recovery-runbook.md"
+    ],
+    "expected_evidence_terms": [
+      "device lease",
+      "logcat",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "device reused without lease",
+      "logcat missing",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "mmo-mobile-app-automation-public-repo-benchmark-anchor",
+    "skill": "mmo-mobile-app-automation",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `mmo-mobile-app-automation` and explain what evidence is still missing.",
+    "expected_files": [
+      "ops/devices.json",
+      "docs/mobile-recovery-runbook.md"
+    ],
+    "expected_symbols": [
+      "DeviceLease"
+    ],
+    "expected_tests": [
+      "docs/mobile-recovery-runbook.md"
+    ],
+    "expected_evidence_terms": [
+      "app-state",
+      "operator ledger",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "logcat missing",
+      "hub/provider guessed",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "mmo-mobile-app-automation-deep-weakness-trap",
+    "skill": "mmo-mobile-app-automation",
+    "repo_profile": "deep mmo-mobile-device-lease suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `mmo-mobile-app-automation` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "ops/devices.json",
+      "workers/mobile_runner.ts",
+      "docs/mobile-recovery-runbook.md"
+    ],
+    "expected_symbols": [
+      "DeviceLease",
+      "MobileRunner"
+    ],
+    "expected_tests": [
+      "docs/mobile-recovery-runbook.md"
+    ],
+    "expected_evidence_terms": [
+      "device lease",
+      "operator ledger",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "device reused without lease",
+      "logcat missing",
+      "hub/provider guessed",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

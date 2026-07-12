@@ -1,0 +1,88 @@
+[
+  {
+    "id": "mmo-content-factory-battle-read-first",
+    "skill": "mmo-content-factory",
+    "repo_profile": "operator-owned automation repo with account inventory, worker queue, run logs, and policy guardrails",
+    "task": "review an operator-owned MMO automation lane for safety, repeatability, and evidence logging Use `mmo-content-factory` and cite the first files before advice.",
+    "expected_files": [
+      "ops/accounts.csv",
+      "workers/session_runner.ts",
+      "logs/run-2026-05-17.json"
+    ],
+    "expected_symbols": [
+      "SessionRunner",
+      "AccountHealth"
+    ],
+    "expected_tests": [
+      "logs/run-2026-05-17.json"
+    ],
+    "expected_evidence_terms": [
+      "operator queue",
+      "quota",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "mmo-content-factory-public-repo-benchmark-anchor",
+    "skill": "mmo-content-factory",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `mmo-content-factory` and explain what evidence is still missing.",
+    "expected_files": [
+      "ops/accounts.csv",
+      "logs/run-2026-05-17.json"
+    ],
+    "expected_symbols": [
+      "SessionRunner"
+    ],
+    "expected_tests": [
+      "logs/run-2026-05-17.json"
+    ],
+    "expected_evidence_terms": [
+      "dedupe",
+      "recovery runbook",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "mmo-content-factory-deep-weakness-trap",
+    "skill": "mmo-content-factory",
+    "repo_profile": "deep mmo suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `mmo-content-factory` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "ops/accounts.csv",
+      "workers/session_runner.ts",
+      "logs/run-2026-05-17.json"
+    ],
+    "expected_symbols": [
+      "SessionRunner",
+      "AccountHealth"
+    ],
+    "expected_tests": [
+      "logs/run-2026-05-17.json"
+    ],
+    "expected_evidence_terms": [
+      "operator queue",
+      "recovery runbook",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "dependency-management-battle-read-first",
+    "skill": "dependency-management",
+    "repo_profile": "public package repo with package manifest, lockfile, dependency policy, and upgrade notes",
+    "task": "review a dependency drift report, compare manifest to lockfile, and name rollback or pin evidence before recommending an upgrade Use `dependency-management` and cite the first files before advice.",
+    "expected_files": [
+      "package.json",
+      "pnpm-lock.yaml",
+      "docs/dependency-policy.md"
+    ],
+    "expected_symbols": [
+      "resolveDependencyPlan",
+      "LockfileGuard"
+    ],
+    "expected_tests": [
+      "tests/dependency-lock.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "dependency drift",
+      "lockfile",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "latest-only advice",
+      "lockfile skipped",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "dependency-management-public-repo-benchmark-anchor",
+    "skill": "dependency-management",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `dependency-management` and explain what evidence is still missing.",
+    "expected_files": [
+      "package.json",
+      "tests/dependency-lock.test.ts"
+    ],
+    "expected_symbols": [
+      "resolveDependencyPlan"
+    ],
+    "expected_tests": [
+      "tests/dependency-lock.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "transitive dependency",
+      "rollback pin",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "lockfile skipped",
+      "install hook trusted",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "dependency-management-deep-weakness-trap",
+    "skill": "dependency-management",
+    "repo_profile": "deep dependency-drift suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `dependency-management` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "package.json",
+      "pnpm-lock.yaml",
+      "tests/dependency-lock.test.ts"
+    ],
+    "expected_symbols": [
+      "resolveDependencyPlan",
+      "LockfileGuard"
+    ],
+    "expected_tests": [
+      "tests/dependency-lock.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "dependency drift",
+      "rollback pin",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "latest-only advice",
+      "lockfile skipped",
+      "install hook trusted",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

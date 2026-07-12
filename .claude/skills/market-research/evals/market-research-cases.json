@@ -1,0 +1,88 @@
+[
+  {
+    "id": "market-research-battle-read-first",
+    "skill": "market-research",
+    "repo_profile": "public product repo with README, pricing notes, competitor docs, and changelog",
+    "task": "separate verified market evidence from inference before recommending product direction Use `market-research` and cite the first files before advice.",
+    "expected_files": [
+      "README.md",
+      "docs/site/skill-catalog.md",
+      "CHANGELOG.md"
+    ],
+    "expected_symbols": [
+      "pricing",
+      "positioning"
+    ],
+    "expected_tests": [
+      "CHANGELOG.md"
+    ],
+    "expected_evidence_terms": [
+      "source freshness",
+      "competitor claim",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "market-research-public-repo-benchmark-anchor",
+    "skill": "market-research",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `market-research` and explain what evidence is still missing.",
+    "expected_files": [
+      "README.md",
+      "CHANGELOG.md"
+    ],
+    "expected_symbols": [
+      "pricing"
+    ],
+    "expected_tests": [
+      "CHANGELOG.md"
+    ],
+    "expected_evidence_terms": [
+      "unknown",
+      "decision impact",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "market-research-deep-weakness-trap",
+    "skill": "market-research",
+    "repo_profile": "deep research suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `market-research` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "README.md",
+      "docs/site/skill-catalog.md",
+      "CHANGELOG.md"
+    ],
+    "expected_symbols": [
+      "pricing",
+      "positioning"
+    ],
+    "expected_tests": [
+      "CHANGELOG.md"
+    ],
+    "expected_evidence_terms": [
+      "source freshness",
+      "decision impact",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

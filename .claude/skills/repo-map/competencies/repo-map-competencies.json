@@ -1,0 +1,87 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "repo-map",
+  "role": "utility-provider",
+  "category": "repo-map",
+  "core_competencies": [
+    {
+      "id": "repo-map.entrypoint-map",
+      "label": "Map entrypoints, main routes, commands, and runtime roots before deeper analysis.",
+      "evidence_terms": [
+        "entrypoint",
+        "main",
+        "route"
+      ],
+      "archetypes": [
+        "repo-analysis",
+        "backend-api",
+        "frontend-app",
+        "cli-tool"
+      ]
+    },
+    {
+      "id": "repo-map.ownership-boundary",
+      "label": "Identify module ownership, boundaries, and handoff candidates.",
+      "evidence_terms": [
+        "ownership",
+        "boundary",
+        "module"
+      ],
+      "archetypes": [
+        "repo-analysis"
+      ]
+    },
+    {
+      "id": "repo-map.dependency-direction",
+      "label": "Trace import, call graph, and dependency direction instead of dumping the tree.",
+      "evidence_terms": [
+        "dependency direction",
+        "import",
+        "call graph"
+      ],
+      "archetypes": [
+        "repo-analysis",
+        "large-context"
+      ]
+    },
+    {
+      "id": "repo-map.test-doc-adjacency",
+      "label": "Connect source files to nearby tests, docs, config, and contracts.",
+      "evidence_terms": [
+        "nearby test",
+        "docs",
+        "config"
+      ],
+      "archetypes": [
+        "repo-analysis",
+        "test-runner"
+      ]
+    },
+    {
+      "id": "repo-map.scout-handoff",
+      "label": "Hand off unknown or risky areas to the next skill with evidence and gaps.",
+      "evidence_terms": [
+        "handoff",
+        "next skill",
+        "unknown"
+      ],
+      "archetypes": [
+        "repo-analysis",
+        "unknown-domain"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "repo-map.tree-dump-without-meaning",
+      "description": "Lists files without explaining ownership, entrypoints, or dependency direction."
+    },
+    {
+      "id": "repo-map.ownership-guess",
+      "description": "Guesses ownership from filenames without import, docs, or test adjacency evidence."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.868527+00:00"
+}

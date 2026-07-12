@@ -1,0 +1,95 @@
+[
+  {
+    "id": "browser-inspector-battle-read-first",
+    "skill": "browser-inspector",
+    "repo_profile": "public frontend repo with login page, Playwright flow, console log artifact, network HAR, and screenshot evidence",
+    "task": "inspect a browser login runtime issue with console, network, DOM state, screenshot, and reproduction trace evidence Use `browser-inspector` and cite the first files before advice.",
+    "expected_files": [
+      "src/app/login/page.tsx",
+      "tests/e2e/login.spec.ts",
+      "artifacts/login-console.json"
+    ],
+    "expected_symbols": [
+      "LoginPage",
+      "loginSpec"
+    ],
+    "expected_tests": [
+      "tests/e2e/login.spec.ts"
+    ],
+    "expected_evidence_terms": [
+      "console",
+      "network",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "screenshot only",
+      "network log without repro",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "browser-inspector-public-repo-benchmark-anchor",
+    "skill": "browser-inspector",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `browser-inspector` and explain what evidence is still missing.",
+    "expected_files": [
+      "src/app/login/page.tsx",
+      "artifacts/login-screenshot.md"
+    ],
+    "expected_symbols": [
+      "LoginPage"
+    ],
+    "expected_tests": [
+      "tests/e2e/login.spec.ts"
+    ],
+    "expected_evidence_terms": [
+      "dom",
+      "screenshot",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "network log without repro",
+      "browser state leaked",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "browser-inspector-deep-weakness-trap",
+    "skill": "browser-inspector",
+    "repo_profile": "deep browser-runtime suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `browser-inspector` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "src/app/login/page.tsx",
+      "tests/e2e/login.spec.ts",
+      "artifacts/login-screenshot.md"
+    ],
+    "expected_symbols": [
+      "LoginPage",
+      "loginSpec"
+    ],
+    "expected_tests": [
+      "tests/e2e/login.spec.ts"
+    ],
+    "expected_evidence_terms": [
+      "console",
+      "screenshot",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "screenshot only",
+      "network log without repro",
+      "browser state leaked",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mmo-lowcode-automation-battle-read-first",
+    "skill": "mmo-lowcode-automation",
+    "repo_profile": "operator-owned low-code orchestration repo with node graph, execution history, redacted execution logs, and rollback notes",
+    "task": "review low-code automation with node graph, execution history, manual versus production execution, redacted logs, and rollback evidence Use `mmo-lowcode-automation` and cite the first files before advice.",
+    "expected_files": [
+      "ops/flow.json",
+      "workers/lowcode_runner.ts",
+      "logs/execution-history.json"
+    ],
+    "expected_symbols": [
+      "NodeGraph",
+      "ExecutionHistory"
+    ],
+    "expected_tests": [
+      "docs/lowcode-rollback.md"
+    ],
+    "expected_evidence_terms": [
+      "node graph",
+      "execution history",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "manual and production execution mixed",
+      "history missing",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "mmo-lowcode-automation-public-repo-benchmark-anchor",
+    "skill": "mmo-lowcode-automation",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `mmo-lowcode-automation` and explain what evidence is still missing.",
+    "expected_files": [
+      "ops/flow.json",
+      "docs/lowcode-rollback.md"
+    ],
+    "expected_symbols": [
+      "NodeGraph"
+    ],
+    "expected_tests": [
+      "docs/lowcode-rollback.md"
+    ],
+    "expected_evidence_terms": [
+      "redacted execution",
+      "operator ledger",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "history missing",
+      "rollback skipped",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "mmo-lowcode-automation-deep-weakness-trap",
+    "skill": "mmo-lowcode-automation",
+    "repo_profile": "deep mmo-lowcode-execution-history suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `mmo-lowcode-automation` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "ops/flow.json",
+      "workers/lowcode_runner.ts",
+      "docs/lowcode-rollback.md"
+    ],
+    "expected_symbols": [
+      "NodeGraph",
+      "ExecutionHistory"
+    ],
+    "expected_tests": [
+      "docs/lowcode-rollback.md"
+    ],
+    "expected_evidence_terms": [
+      "node graph",
+      "operator ledger",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "manual and production execution mixed",
+      "history missing",
+      "rollback skipped",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

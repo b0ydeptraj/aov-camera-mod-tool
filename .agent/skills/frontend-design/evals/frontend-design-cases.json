@@ -1,0 +1,88 @@
+[
+  {
+    "id": "frontend-design-battle-read-first",
+    "skill": "frontend-design",
+    "repo_profile": "public Next.js product repo with app router, login UI, and Playwright smoke tests",
+    "task": "review a login UI change, name files first, and identify the test evidence before editing Use `frontend-design` and cite the first files before advice.",
+    "expected_files": [
+      "src/app/login/page.tsx",
+      "src/components/LoginForm.tsx",
+      "tests/login.spec.ts"
+    ],
+    "expected_symbols": [
+      "LoginForm",
+      "submitLogin"
+    ],
+    "expected_tests": [
+      "tests/login.spec.ts"
+    ],
+    "expected_evidence_terms": [
+      "login flow",
+      "component boundary",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "frontend-design-public-repo-benchmark-anchor",
+    "skill": "frontend-design",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `frontend-design` and explain what evidence is still missing.",
+    "expected_files": [
+      "src/app/login/page.tsx",
+      "tests/login.spec.ts"
+    ],
+    "expected_symbols": [
+      "LoginForm"
+    ],
+    "expected_tests": [
+      "tests/login.spec.ts"
+    ],
+    "expected_evidence_terms": [
+      "accessibility state",
+      "visual regression",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "frontend-design-deep-weakness-trap",
+    "skill": "frontend-design",
+    "repo_profile": "deep frontend suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `frontend-design` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "src/app/login/page.tsx",
+      "src/components/LoginForm.tsx",
+      "tests/login.spec.ts"
+    ],
+    "expected_symbols": [
+      "LoginForm",
+      "submitLogin"
+    ],
+    "expected_tests": [
+      "tests/login.spec.ts"
+    ],
+    "expected_evidence_terms": [
+      "login flow",
+      "visual regression",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

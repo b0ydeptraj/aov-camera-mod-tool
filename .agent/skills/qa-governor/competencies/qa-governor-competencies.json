@@ -1,0 +1,82 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "qa-governor",
+  "role": "quality",
+  "category": "policy-security",
+  "core_competencies": [
+    {
+      "id": "policy-security.policy-rule-map",
+      "label": "Map policy, rule, allowlist, and blocked operation surfaces.",
+      "evidence_terms": [
+        "policy",
+        "rule",
+        "allowlist"
+      ],
+      "archetypes": [
+        "security-policy"
+      ]
+    },
+    {
+      "id": "policy-security.secret-scope",
+      "label": "Detect secret, token, and permission-scope risk.",
+      "evidence_terms": [
+        "secret",
+        "token",
+        "permission"
+      ],
+      "archetypes": [
+        "security-policy",
+        "api-client"
+      ]
+    },
+    {
+      "id": "policy-security.fail-closed",
+      "label": "Fail closed on high-risk shell, path, prompt, or release actions.",
+      "evidence_terms": [
+        "fail closed",
+        "blocked",
+        "risk"
+      ],
+      "archetypes": [
+        "security-policy"
+      ]
+    },
+    {
+      "id": "policy-security.audit-evidence",
+      "label": "Tie findings to static check, audit, or trusted manifest evidence.",
+      "evidence_terms": [
+        "audit",
+        "manifest",
+        "static check"
+      ],
+      "archetypes": [
+        "security-policy"
+      ]
+    },
+    {
+      "id": "policy-security.exception-review",
+      "label": "Escalate intentional exceptions with owner and residual risk.",
+      "evidence_terms": [
+        "exception",
+        "owner",
+        "residual risk"
+      ],
+      "archetypes": [
+        "security-policy"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "policy-security.policy-warning-only",
+      "description": "Reports policy risk without blocking or escalation path."
+    },
+    {
+      "id": "policy-security.secret-blind-review",
+      "description": "Ignores token, secret, or permission scope evidence."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.868527+00:00"
+}

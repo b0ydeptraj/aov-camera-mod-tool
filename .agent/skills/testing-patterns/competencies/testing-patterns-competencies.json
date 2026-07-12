@@ -1,0 +1,85 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "testing-patterns",
+  "role": "quality-support",
+  "category": "testing-patterns",
+  "core_competencies": [
+    {
+      "id": "testing-patterns.fixture-factory-strategy",
+      "label": "Choose fixture, factory, and test data strategy based on the failure mode.",
+      "evidence_terms": [
+        "fixture",
+        "factory",
+        "test data"
+      ],
+      "archetypes": [
+        "test-runner"
+      ]
+    },
+    {
+      "id": "testing-patterns.mock-integration-boundary",
+      "label": "Separate mock, integration, contract, and end-to-end boundaries.",
+      "evidence_terms": [
+        "mock",
+        "integration boundary",
+        "contract"
+      ],
+      "archetypes": [
+        "test-runner",
+        "backend-api",
+        "frontend-app"
+      ]
+    },
+    {
+      "id": "testing-patterns.regression-anchor",
+      "label": "Anchor tests to the regression, bug, or risk being proven.",
+      "evidence_terms": [
+        "regression",
+        "failure mode",
+        "test anchor"
+      ],
+      "archetypes": [
+        "test-runner"
+      ]
+    },
+    {
+      "id": "testing-patterns.flake-control",
+      "label": "Control flakes with deterministic setup, isolation, and stable assertions.",
+      "evidence_terms": [
+        "flake",
+        "deterministic",
+        "isolation"
+      ],
+      "archetypes": [
+        "test-runner",
+        "ci-devops"
+      ]
+    },
+    {
+      "id": "testing-patterns.risk-coverage-map",
+      "label": "Map coverage decisions to risk, edge cases, and blast radius.",
+      "evidence_terms": [
+        "coverage",
+        "risk",
+        "edge case"
+      ],
+      "archetypes": [
+        "test-runner",
+        "release"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "testing-patterns.coverage-count-over-risk",
+      "description": "Treats coverage percentage as proof without mapping it to risk."
+    },
+    {
+      "id": "testing-patterns.mock-everything",
+      "description": "Mocks away the behavior that should be proven by integration or contract evidence."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.868527+00:00"
+}

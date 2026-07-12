@@ -1,0 +1,83 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "automation-ops",
+  "role": "automation",
+  "category": "automation-ops",
+  "core_competencies": [
+    {
+      "id": "automation-ops.scheduler-queue",
+      "label": "Map scheduler, queue, worker, and trigger ownership.",
+      "evidence_terms": [
+        "scheduler",
+        "queue",
+        "worker"
+      ],
+      "archetypes": [
+        "automation-worker",
+        "ci-devops"
+      ]
+    },
+    {
+      "id": "automation-ops.dry-run-rollback",
+      "label": "Require dry-run and rollback evidence before enabling automation.",
+      "evidence_terms": [
+        "dry-run",
+        "rollback",
+        "enable"
+      ],
+      "archetypes": [
+        "automation-worker"
+      ]
+    },
+    {
+      "id": "automation-ops.idempotent-retry",
+      "label": "Design idempotency, dedupe, retry, and backoff behavior.",
+      "evidence_terms": [
+        "idempotency",
+        "dedupe",
+        "retry"
+      ],
+      "archetypes": [
+        "automation-worker"
+      ]
+    },
+    {
+      "id": "automation-ops.execution-history",
+      "label": "Record execution logs, run ids, and operator-visible status.",
+      "evidence_terms": [
+        "execution history",
+        "run id",
+        "status"
+      ],
+      "archetypes": [
+        "automation-worker"
+      ]
+    },
+    {
+      "id": "automation-ops.operator-runbook",
+      "label": "Produce runbook, ownership, and failure handling.",
+      "evidence_terms": [
+        "runbook",
+        "owner",
+        "failure"
+      ],
+      "archetypes": [
+        "automation-worker",
+        "ci-devops"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "automation-ops.automation-without-dry-run",
+      "description": "Enables automation without dry-run or rollback evidence."
+    },
+    {
+      "id": "automation-ops.queue-without-idempotency",
+      "description": "Designs queues without dedupe or replay safety."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

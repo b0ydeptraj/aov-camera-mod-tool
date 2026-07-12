@@ -1,0 +1,81 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "bootstrap",
+  "role": "session-bootstrap",
+  "category": "context-continuity",
+  "core_competencies": [
+    {
+      "id": "context-continuity.state-retrieval",
+      "label": "Find current state, prior decisions, and handoff breadcrumbs.",
+      "evidence_terms": [
+        "state",
+        "memory",
+        "handoff"
+      ],
+      "archetypes": [
+        "long-running-lane"
+      ]
+    },
+    {
+      "id": "context-continuity.freshness-check",
+      "label": "Separate current evidence from stale or historical context.",
+      "evidence_terms": [
+        "freshness",
+        "stale",
+        "current"
+      ],
+      "archetypes": [
+        "long-running-lane"
+      ]
+    },
+    {
+      "id": "context-continuity.context-pack",
+      "label": "Pack only task-relevant files, evidence, and constraints.",
+      "evidence_terms": [
+        "context pack",
+        "relevant",
+        "constraints"
+      ],
+      "archetypes": [
+        "large-context"
+      ]
+    },
+    {
+      "id": "context-continuity.token-budget",
+      "label": "Preserve raw-required evidence while compressing low-signal context.",
+      "evidence_terms": [
+        "token",
+        "raw-required",
+        "compress"
+      ],
+      "archetypes": [
+        "large-context"
+      ]
+    },
+    {
+      "id": "context-continuity.resume-safety",
+      "label": "Resume without losing the newest user request or active lane.",
+      "evidence_terms": [
+        "resume",
+        "newest request",
+        "active lane"
+      ],
+      "archetypes": [
+        "long-running-lane"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "context-continuity.stale-state-resume",
+      "description": "Continues from stale state while ignoring newer user input."
+    },
+    {
+      "id": "context-continuity.context-dump",
+      "description": "Dumps too much context instead of selecting task-relevant evidence."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

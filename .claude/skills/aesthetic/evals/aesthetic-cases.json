@@ -1,0 +1,88 @@
+[
+  {
+    "id": "aesthetic-battle-read-first",
+    "skill": "aesthetic",
+    "repo_profile": "Relay-kit public repo with generated adapters, readiness gates, docs, and runtime tests",
+    "task": "audit a Relay-kit runtime change and prove the generated surfaces are still synchronized Use `aesthetic` and cite the first files before advice.",
+    "expected_files": [
+      "relay_kit_public_cli.py",
+      "relay_kit_v3/registry/skills.py",
+      "tests/test_skill_resources.py"
+    ],
+    "expected_symbols": [
+      "main",
+      "SkillSpec"
+    ],
+    "expected_tests": [
+      "tests/test_skill_resources.py"
+    ],
+    "expected_evidence_terms": [
+      "adapter surface",
+      "readiness gate",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "aesthetic-public-repo-benchmark-anchor",
+    "skill": "aesthetic",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `aesthetic` and explain what evidence is still missing.",
+    "expected_files": [
+      "relay_kit_public_cli.py",
+      "tests/test_skill_resources.py"
+    ],
+    "expected_symbols": [
+      "main"
+    ],
+    "expected_tests": [
+      "tests/test_skill_resources.py"
+    ],
+    "expected_evidence_terms": [
+      "generated skill",
+      "strict evidence",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "aesthetic-deep-weakness-trap",
+    "skill": "aesthetic",
+    "repo_profile": "deep relay suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `aesthetic` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "relay_kit_public_cli.py",
+      "relay_kit_v3/registry/skills.py",
+      "tests/test_skill_resources.py"
+    ],
+    "expected_symbols": [
+      "main",
+      "SkillSpec"
+    ],
+    "expected_tests": [
+      "tests/test_skill_resources.py"
+    ],
+    "expected_evidence_terms": [
+      "adapter surface",
+      "strict evidence",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

@@ -2,18 +2,14 @@
 """
 strip_verification.py
 ---------------------
-Xoá entry CommonActions.pkg.bytes khỏi
+Vô hiệu hoá entry CommonActions.pkg.bytes trong
 resourceverificationinfosetall.assetbundle.
 
-Cơ chế:
+Cơ chế (v4 - zero path, giữ nguyên cấu trúc):
   1. Tìm path string "Ages/Prefab_Characters/Prefab_Hero/CommonActions.pkg.bytes"
-     trong raw file bytes.
-  2. Xác định entry boundary: [4B path_len] [path] [align pad] [8B hash]
-  3. Dịch toàn bộ data sau entry lên, lấp chỗ trống bằng 0x00 ở cuối.
-  4. Giảm array count đi 1.
-  5. File size giữ nguyên (pad zeros ở cuối data region).
-
-Đây là cách tool cũ hoạt động thành công ở các mùa trước.
+  2. Zero toàn bộ path bytes + hash → path rỗng, game không match → bỏ qua
+  3. KHÔNG dịch bytes, KHÔNG đổi count, KHÔNG đổi size
+  4. File size giữ nguyên, cấu trúc SerializedFile 100% nguyên vẹn
 """
 
 import struct
@@ -41,31 +37,42 @@ _UNITYFS_MAGIC = b"UnityFS\x00"
 
 
 # ------------------------------------------------------------------ #
-#  Tìm entry và xoá                                                   #
+#  Tìm entry và vô hiệu hoá                                          #
 # ------------------------------------------------------------------ #
 
-def _find_entry_bounds(data: bytearray) -> tuple[int, int, int] | None:
-    """
-    Tìm entry CommonActions trong data.
-    Entry format: [4B path_len LE] [path bytes] [align to 4] [8B hash]
+def _find_hash_offset(data: bytearray, path_idx: int, path_len: int) -> int:
+    """Tính offset của hash (8 bytes) sau path string + align pad."""
+    align_pad = (4 - (path_len % 4)) % 4
+    return path_idx + path_len + align_pad
 
-    Returns: (entry_start, entry_end, path_len_value) hoặc None nếu không tìm thấy.
+
+def _nullify_entry(data: bytearray) -> tuple[bytearray, bool, str]:
+    """
+    Vô hiệu hoá entry CommonActions bằng cách zero path + hash.
+    Không dịch bytes, không đổi count, không phá cấu trúc.
     """
     idx = data.find(_SEARCH_PATTERN)
+
     if idx < 0:
-        return None
+        # Kiểm tra đã xử lý trước đó chưa
+        if b"CommonActions" not in data:
+            return data, False, "Da xu ly roi — CommonActions khong con trong file."
+        return data, False, (
+            "Tim thay 'CommonActions' nhung khong khop pattern chuan.\n"
+            "    Co the phien ban game da thay doi cau truc."
+        )
 
     # path_len nằm 4 bytes trước path string
     path_len_off = idx - 4
     if path_len_off < 0:
-        return None
+        return data, False, "Khong xac dinh duoc path_len offset."
 
     path_len = struct.unpack_from("<I", data, path_len_off)[0]
-    expected_len = len(_SEARCH_PATTERN)
 
-    if path_len != expected_len:
-        # Có thể path string bắt đầu trước "Ages/..." (ví dụ có prefix)
-        # Thử tìm path_len phù hợp bằng cách scan ngược
+    # Verify path_len khớp
+    if path_len != len(_SEARCH_PATTERN):
+        # Thử tìm path_len field chính xác
+        found = False
         for back in range(5, 80):
             test_off = idx - back
             if test_off < 4:
@@ -74,114 +81,37 @@ def _find_entry_bounds(data: bytearray) -> tuple[int, int, int] | None:
             if test_len == back:
                 path_len_off = test_off
                 path_len = test_len
+                idx = test_off + 4  # path starts after len field
+                found = True
                 break
-        else:
-            return None
+        if not found:
+            return data, False, "Khong xac dinh duoc entry boundary."
 
-    # Entry start = path_len field
-    entry_start = path_len_off
+    hash_off = _find_hash_offset(data, idx, path_len)
 
-    # After path: align to 4 bytes, then 8 bytes hash
-    align_pad = (4 - (path_len % 4)) % 4
-    hash_end = entry_start + 4 + path_len + align_pad + 8
-    entry_end = hash_end
+    # Lưu hash cũ để log
+    old_hash = data[hash_off:hash_off + 8].hex()
 
-    return entry_start, entry_end, path_len
+    # === ZERO PATH + HASH ===
+    # Zero path_len field (4 bytes)
+    data[path_len_off:path_len_off + 4] = b"\x00" * 4
 
+    # Zero path bytes
+    data[idx:idx + path_len] = b"\x00" * path_len
 
-def _find_array_count_offset(data: bytearray, entry_start: int) -> int | None:
-    """
-    Tìm array count field (4 bytes LE) nằm trước entry đầu tiên trong mảng.
-    Count nằm trước Behaviac entry (entry đầu tiên), không phải trước CommonActions.
-    Scan ngược từ entry_start tới 200 bytes để tìm uint32 hợp lý.
-    """
-    for back in range(4, 200, 4):
-        test_off = entry_start - back
-        if test_off < 0:
-            break
-        val = struct.unpack_from("<I", data, test_off)[0]
-        # Array count phải > 0 và hợp lý (khoảng 100-1000 entries)
-        if 50 < val < 10000:
-            return test_off
-    return None
+    # Zero hash (8 bytes)
+    data[hash_off:hash_off + 8] = b"\x00" * 8
 
-
-def _strip_entry(data: bytearray) -> tuple[bytearray, bool, str]:
-    """
-    Xoá entry CommonActions bằng cách dịch bytes và giảm count.
-    """
-    bounds = _find_entry_bounds(data)
-    if bounds is None:
-        # Kiểm tra đã xoá trước đó chưa
-        if b"CommonActions" not in data:
-            return data, False, "✅  Không tìm thấy CommonActions — file đã sạch."
-        return data, False, (
-            "⚠️  Tìm thấy 'CommonActions' nhưng không xác định được entry boundary.\n"
-            "    Có thể cấu trúc file đã thay đổi."
-        )
-
-    entry_start, entry_end, path_len = bounds
-    entry_size = entry_end - entry_start
-
-    # Tìm data region boundary
-    # Block info nằm ở cuối file (flag 0x40 trong UnityFS header)
-    # Đọc compressed block info size từ header
-    pos = 12
-    while pos < len(data) and data[pos] != 0:
-        pos += 1
-    pos += 1  # skip null
-    while pos < len(data) and data[pos] != 0:
-        pos += 1
-    pos += 1  # skip null
-
-    comp_info_size = struct.unpack_from(">I", data, pos + 8)[0]
-    flags = struct.unpack_from(">I", data, pos + 16)[0]
-
-    has_dir_at_end = (flags & 0x40) != 0
-    if has_dir_at_end:
-        data_region_end = len(data) - comp_info_size
-    else:
-        data_region_end = len(data)
-
-    # Dịch bytes: mọi thứ sau entry dịch lên entry_size bytes
-    shift_src = entry_end
-    shift_dst = entry_start
-    shift_len = data_region_end - entry_end
-
-    if shift_len > 0:
-        data[shift_dst:shift_dst + shift_len] = data[shift_src:shift_src + shift_len]
-
-    # Pad zeros ở cuối data region
-    pad_start = shift_dst + shift_len
-    data[pad_start:pad_start + entry_size] = b"\x00" * entry_size
-
-    # Giảm array count
-    count_off = _find_array_count_offset(data, entry_start)
-    count_msg = ""
-    if count_off is not None:
-        old_count = struct.unpack_from("<I", data, count_off)[0]
-        struct.pack_into("<I", data, count_off, old_count - 1)
-        count_msg = (
-            f"    Array count: {old_count} → {old_count - 1} "
-            f"(offset 0x{count_off:X})\n"
-        )
-    else:
-        count_msg = "    ⚠️  Không tìm thấy array count — chỉ dịch bytes.\n"
-
-    # Verify
-    still_found = data.find(b"CommonActions")
+    total_zeroed = 4 + path_len + 8  # path_len field + path + hash
+    # align pad bytes between path and hash are already padding, leave them
 
     msg = (
-        f"✅  Đã xoá entry CommonActions khỏi verification.\n"
-        f"    Entry: offset 0x{entry_start:X}–0x{entry_end:X} ({entry_size} bytes)\n"
-        f"    Dịch {shift_len} bytes lên, pad {entry_size} bytes zeros.\n"
-        f"{count_msg}"
+        f"Da vo hieu hoa entry CommonActions trong verification.\n"
+        f"    Zero {total_zeroed} bytes: path_len(4) + path({path_len}) + hash(8)\n"
+        f"    Hash cu: {old_hash}\n"
+        f"    Offset: 0x{path_len_off:X}–0x{hash_off + 8:X}\n"
+        f"    Cau truc file 100% nguyen ven, khong dich bytes."
     )
-
-    if still_found >= 0:
-        msg += f"    ⚠️  Vẫn còn 'CommonActions' tại 0x{still_found:X} — có thể có nhiều entry.\n"
-    else:
-        msg += "    ✓  Xác nhận: CommonActions đã bị xoá hoàn toàn.\n"
 
     return data, True, msg
 
@@ -195,22 +125,22 @@ def strip_common_actions_from_bundle(
     output_path: Path,
 ) -> StripResult:
     """
-    Đọc resourceverificationinfosetall.assetbundle, xoá entry
-    CommonActions, lưu ra output_path.
+    Đọc resourceverificationinfosetall.assetbundle, vô hiệu hoá entry
+    CommonActions bằng cách zero path+hash, lưu ra output_path.
     """
     try:
         data = bytearray(input_path.read_bytes())
     except Exception as e:
-        return StripResult(False, f"Không đọc được file: {e}")
+        return StripResult(False, f"Khong doc duoc file: {e}")
 
     if data[:8] != _UNITYFS_MAGIC:
-        return StripResult(False, "Không phải file UnityFS hợp lệ.")
+        return StripResult(False, "Khong phai file UnityFS hop le.")
 
-    data, modified, msg = _strip_entry(data)
+    data, modified, msg = _nullify_entry(data)
 
     if not modified:
         return StripResult(
-            success="đã sạch" in msg or "đã được" in msg,
+            success="Da xu ly" in msg,
             message=msg,
             output_path=None,
         )
@@ -219,7 +149,7 @@ def strip_common_actions_from_bundle(
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(data)
     except Exception as e:
-        return StripResult(False, f"Không lưu được file: {e}")
+        return StripResult(False, f"Khong luu duoc file: {e}")
 
     return StripResult(success=True, message=msg, output_path=output_path)
 
@@ -231,7 +161,7 @@ def strip_common_actions_from_bundle(
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 3:
-        print("Dùng: python strip_verification.py <input> <output>")
+        print("Dung: python strip_verification.py <input> <output>")
         sys.exit(1)
     result = strip_common_actions_from_bundle(Path(sys.argv[1]), Path(sys.argv[2]))
     print(result.message)

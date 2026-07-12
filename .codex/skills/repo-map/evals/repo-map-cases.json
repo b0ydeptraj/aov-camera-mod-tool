@@ -1,0 +1,95 @@
+[
+  {
+    "id": "repo-map-battle-read-first",
+    "skill": "repo-map",
+    "repo_profile": "public mixed frontend/backend repo where the task is to map entrypoints, ownership, tests, docs, and dependency direction",
+    "task": "map the repo area for a session bug, naming entrypoints, ownership boundary, dependency direction, and nearby tests/docs Use `repo-map` and cite the first files before advice.",
+    "expected_files": [
+      "src/main.ts",
+      "src/auth/session.ts",
+      "tests/session.test.ts"
+    ],
+    "expected_symbols": [
+      "main",
+      "SessionService"
+    ],
+    "expected_tests": [
+      "tests/session.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "entrypoint",
+      "ownership",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "tree dump",
+      "ownership guessed",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "repo-map-public-repo-benchmark-anchor",
+    "skill": "repo-map",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `repo-map` and explain what evidence is still missing.",
+    "expected_files": [
+      "src/main.ts",
+      "docs/architecture.md"
+    ],
+    "expected_symbols": [
+      "main"
+    ],
+    "expected_tests": [
+      "tests/session.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "dependency direction",
+      "nearby test",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "ownership guessed",
+      "no handoff",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "repo-map-deep-weakness-trap",
+    "skill": "repo-map",
+    "repo_profile": "deep repo-discovery suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `repo-map` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "src/main.ts",
+      "src/auth/session.ts",
+      "docs/architecture.md"
+    ],
+    "expected_symbols": [
+      "main",
+      "SessionService"
+    ],
+    "expected_tests": [
+      "tests/session.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "entrypoint",
+      "nearby test",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "tree dump",
+      "ownership guessed",
+      "no handoff",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mmo-reup-automation-battle-read-first",
+    "skill": "mmo-reup-automation",
+    "repo_profile": "operator-owned reup repo with source inventory, publish queue, dedupe controls, reject drawer, and evidence timeline",
+    "task": "review reup workflow with source inventory, publish queue, dedupe, reject drawer, and evidence timeline before automation changes Use `mmo-reup-automation` and cite the first files before advice.",
+    "expected_files": [
+      "ops/source_inventory.csv",
+      "workers/reup_queue.ts",
+      "logs/reup-ledger.json"
+    ],
+    "expected_symbols": [
+      "SourceInventory",
+      "PublishQueue"
+    ],
+    "expected_tests": [
+      "docs/reup-source-policy.md"
+    ],
+    "expected_evidence_terms": [
+      "source inventory",
+      "publish queue",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "bulk action without inventory",
+      "dedupe skipped",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "mmo-reup-automation-public-repo-benchmark-anchor",
+    "skill": "mmo-reup-automation",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `mmo-reup-automation` and explain what evidence is still missing.",
+    "expected_files": [
+      "ops/source_inventory.csv",
+      "docs/reup-source-policy.md"
+    ],
+    "expected_symbols": [
+      "SourceInventory"
+    ],
+    "expected_tests": [
+      "docs/reup-source-policy.md"
+    ],
+    "expected_evidence_terms": [
+      "dedupe",
+      "evidence timeline",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "dedupe skipped",
+      "evidence timeline missing",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "mmo-reup-automation-deep-weakness-trap",
+    "skill": "mmo-reup-automation",
+    "repo_profile": "deep mmo-reup-source-inventory suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `mmo-reup-automation` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "ops/source_inventory.csv",
+      "workers/reup_queue.ts",
+      "docs/reup-source-policy.md"
+    ],
+    "expected_symbols": [
+      "SourceInventory",
+      "PublishQueue"
+    ],
+    "expected_tests": [
+      "docs/reup-source-policy.md"
+    ],
+    "expected_evidence_terms": [
+      "source inventory",
+      "evidence timeline",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "bulk action without inventory",
+      "dedupe skipped",
+      "evidence timeline missing",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]

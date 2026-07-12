@@ -1,0 +1,86 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "browser-inspector",
+  "role": "utility-provider",
+  "category": "browser-inspector",
+  "core_competencies": [
+    {
+      "id": "browser-inspector.console-network-evidence",
+      "label": "Capture console, network, request, and response evidence for the runtime issue.",
+      "evidence_terms": [
+        "console",
+        "network",
+        "request"
+      ],
+      "archetypes": [
+        "frontend-app",
+        "browser-runtime"
+      ]
+    },
+    {
+      "id": "browser-inspector.dom-state-trace",
+      "label": "Tie UI observations to DOM, selector, state, and interaction sequence.",
+      "evidence_terms": [
+        "dom",
+        "selector",
+        "state"
+      ],
+      "archetypes": [
+        "frontend-app",
+        "browser-runtime"
+      ]
+    },
+    {
+      "id": "browser-inspector.screenshot-video-artifact",
+      "label": "Attach screenshot, video, or visual artifact evidence when runtime UI matters.",
+      "evidence_terms": [
+        "screenshot",
+        "video",
+        "artifact"
+      ],
+      "archetypes": [
+        "frontend-app",
+        "browser-runtime"
+      ]
+    },
+    {
+      "id": "browser-inspector.browser-state-isolation",
+      "label": "Control browser state, cookies, storage, viewport, and session isolation.",
+      "evidence_terms": [
+        "browser state",
+        "cookies",
+        "local storage"
+      ],
+      "archetypes": [
+        "frontend-app",
+        "browser-runtime"
+      ]
+    },
+    {
+      "id": "browser-inspector.runtime-handoff",
+      "label": "Produce a reproduction trace and frontend handoff instead of screenshot-only feedback.",
+      "evidence_terms": [
+        "reproduction trace",
+        "frontend handoff",
+        "runtime evidence"
+      ],
+      "archetypes": [
+        "frontend-app",
+        "browser-runtime"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "browser-inspector.screenshot-only",
+      "description": "Shows a screenshot without console, network, DOM, or reproduction trace evidence."
+    },
+    {
+      "id": "browser-inspector.network-log-without-repro",
+      "description": "Mentions network logs without tying them to user action and page state."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

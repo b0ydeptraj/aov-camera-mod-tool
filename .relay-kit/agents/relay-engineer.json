@@ -1,0 +1,45 @@
+{
+  "schema_version": "relay-kit.agent-profile.v1",
+  "id": "relay-engineer",
+  "display_name": "Relay Engineer",
+  "intent": "Deliver implementation work with strict planning, verification, and readiness gates.",
+  "route_contract": [
+    "workflow-router",
+    "scout-hub",
+    "plan-hub",
+    "fix-hub",
+    "developer",
+    "test-hub",
+    "review-hub",
+    "qa-governor",
+    "release-readiness",
+    "delegation-control"
+  ],
+  "required_skills": [
+    "workflow-router",
+    "scout-hub",
+    "plan-hub",
+    "fix-hub",
+    "developer",
+    "test-hub",
+    "review-hub",
+    "qa-governor",
+    "release-readiness"
+  ],
+  "optional_skills": [
+    "context-continuity",
+    "policy-guard",
+    "evidence-before-completion",
+    "token-economy"
+  ],
+  "expected_evidence": [
+    "scoped implementation diff with tests or verification output",
+    "review findings with residual risk or explicit pass",
+    "readiness and policy gates mapped to release decision"
+  ],
+  "adapter_support": [
+    "codex",
+    "claude",
+    "agent"
+  ]
+}

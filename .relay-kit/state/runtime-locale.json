@@ -1,0 +1,7 @@
+{
+  "schema_version": "relay-kit.runtime-locale.v1",
+  "locale_profile": "en",
+  "fallback_locale": "en",
+  "enforce_output_language": true,
+  "updated_at": "2026-07-09T03:43:16Z"
+}

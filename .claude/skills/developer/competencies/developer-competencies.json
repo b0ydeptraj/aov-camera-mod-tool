@@ -1,0 +1,81 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "developer",
+  "role": "implementation",
+  "category": "implementation",
+  "core_competencies": [
+    {
+      "id": "implementation.scope-control",
+      "label": "Keep edits bounded to the accepted story or fix.",
+      "evidence_terms": [
+        "scope",
+        "changed files",
+        "blast radius"
+      ],
+      "archetypes": [
+        "codebase"
+      ]
+    },
+    {
+      "id": "implementation.context-before-edit",
+      "label": "Read relevant files, tests, and contracts before editing.",
+      "evidence_terms": [
+        "read first",
+        "source files",
+        "tests"
+      ],
+      "archetypes": [
+        "codebase"
+      ]
+    },
+    {
+      "id": "implementation.test-evidence",
+      "label": "Tie completion to focused and risk-scaled verification.",
+      "evidence_terms": [
+        "test",
+        "verification",
+        "regression"
+      ],
+      "archetypes": [
+        "codebase"
+      ]
+    },
+    {
+      "id": "implementation.rollback-note",
+      "label": "Name rollback or recovery path for risky changes.",
+      "evidence_terms": [
+        "rollback",
+        "recovery",
+        "residual risk"
+      ],
+      "archetypes": [
+        "release"
+      ]
+    },
+    {
+      "id": "implementation.handoff-quality",
+      "label": "Produce a clear handoff with changed files and remaining risk.",
+      "evidence_terms": [
+        "handoff",
+        "changed files",
+        "risk"
+      ],
+      "archetypes": [
+        "multi-agent"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "implementation.edit-before-context",
+      "description": "Edits before reading the relevant source and tests."
+    },
+    {
+      "id": "implementation.completion-without-proof",
+      "description": "Says done without a command, artifact, or observed proof."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.852131+00:00"
+}

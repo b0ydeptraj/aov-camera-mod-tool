@@ -1,0 +1,97 @@
+{
+  "schema_version": "relay-kit.skill-competency.v1",
+  "skill": "problem-solving",
+  "role": "utility-provider",
+  "category": "debugging",
+  "core_competencies": [
+    {
+      "id": "debugging.fresh-reproduction",
+      "label": "Start from a failing command, log, or observed mismatch.",
+      "evidence_terms": [
+        "reproduction",
+        "failure",
+        "log"
+      ],
+      "archetypes": [
+        "bugfix"
+      ]
+    },
+    {
+      "id": "debugging.hypothesis-pruning",
+      "label": "Test one hypothesis at a time and reject alternatives with evidence.",
+      "evidence_terms": [
+        "hypothesis",
+        "root cause",
+        "evidence"
+      ],
+      "archetypes": [
+        "bugfix"
+      ]
+    },
+    {
+      "id": "problem-solving.constraint-reconciliation",
+      "label": "Build competing models when artifacts, counts, order, or human workflow cues disagree.",
+      "evidence_terms": [
+        "competing models",
+        "constraints",
+        "workflow cues"
+      ],
+      "archetypes": [
+        "all"
+      ]
+    },
+    {
+      "id": "debugging.affected-surface",
+      "label": "Map affected files, tests, and downstream behavior.",
+      "evidence_terms": [
+        "affected files",
+        "tests",
+        "blast radius"
+      ],
+      "archetypes": [
+        "codebase"
+      ]
+    },
+    {
+      "id": "debugging.fix-verification",
+      "label": "Verify the fix with the original failure mode and regressions.",
+      "evidence_terms": [
+        "passing",
+        "regression",
+        "verification"
+      ],
+      "archetypes": [
+        "bugfix"
+      ]
+    },
+    {
+      "id": "debugging.residual-risk",
+      "label": "Name what remains unverified after the local fix.",
+      "evidence_terms": [
+        "residual risk",
+        "unverified",
+        "next check"
+      ],
+      "archetypes": [
+        "all"
+      ]
+    }
+  ],
+  "failure_traps": [
+    {
+      "id": "debugging.fix-from-symptom",
+      "description": "Patches the symptom without proving the cause."
+    },
+    {
+      "id": "debugging.broad-debug-checklist",
+      "description": "Returns a generic checklist instead of file-specific evidence."
+    },
+    {
+      "id": "problem-solving.single-model-reconciliation",
+      "description": "Treats the first diff, extraction, or metric mismatch as final instead of testing a workflow-level explanation."
+    }
+  ],
+  "unknown_domain_policy": "scout_first_without_expert_claim",
+  "claim_policy": "competency-covered only when every core competency is present and battle evidence passes.",
+  "generated_at": "2026-05-19T07:37:18.868527+00:00"
+}

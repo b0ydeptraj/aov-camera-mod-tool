@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mmo-http-api-automation-battle-read-first",
+    "skill": "mmo-http-api-automation",
+    "repo_profile": "operator-owned HTTP automation repo with endpoint catalog, request ledger, retry budget, redacted logs, and idempotency keys",
+    "task": "review HTTP API automation with endpoint catalog, request ledger, status code, retry count, and idempotency key evidence Use `mmo-http-api-automation` and cite the first files before advice.",
+    "expected_files": [
+      "ops/endpoints.yaml",
+      "workers/api_client.ts",
+      "logs/request-ledger.json"
+    ],
+    "expected_symbols": [
+      "EndpointCatalog",
+      "RequestLedger"
+    ],
+    "expected_tests": [
+      "tests/request-ledger.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "request ledger",
+      "idempotency key",
+      "verified",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "raw token in logs",
+      "retry without idempotency",
+      "usual checklist",
+      "guess from the name",
+      "should be fine"
+    ]
+  },
+  {
+    "id": "mmo-http-api-automation-public-repo-benchmark-anchor",
+    "skill": "mmo-http-api-automation",
+    "repo_profile": "safe public repo benchmark clone; shallow, read-only, no install, no build, no tests",
+    "task": "Run a read-only battle benchmark style review for `mmo-http-api-automation` and explain what evidence is still missing.",
+    "expected_files": [
+      "ops/endpoints.yaml",
+      "tests/request-ledger.test.ts"
+    ],
+    "expected_symbols": [
+      "EndpointCatalog"
+    ],
+    "expected_tests": [
+      "tests/request-ledger.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "retry count",
+      "redacted",
+      "read-only",
+      "unverified"
+    ],
+    "bad_answer_traps": [
+      "retry without idempotency",
+      "status code ignored",
+      "checklist only",
+      "expert guarantee",
+      "field-tested"
+    ]
+  },
+  {
+    "id": "mmo-http-api-automation-deep-weakness-trap",
+    "skill": "mmo-http-api-automation",
+    "repo_profile": "deep mmo-api-request-ledger suite fixture with source, test, docs, and an explicit overclaim trap",
+    "task": "Score `mmo-http-api-automation` against a deep battle case, identify weak evidence, and avoid claiming maximum strength until files, symbols, tests, and residual risk are proven.",
+    "expected_files": [
+      "ops/endpoints.yaml",
+      "workers/api_client.ts",
+      "tests/request-ledger.test.ts"
+    ],
+    "expected_symbols": [
+      "EndpointCatalog",
+      "RequestLedger"
+    ],
+    "expected_tests": [
+      "tests/request-ledger.test.ts"
+    ],
+    "expected_evidence_terms": [
+      "request ledger",
+      "redacted",
+      "weak evidence",
+      "claim status",
+      "residual risk"
+    ],
+    "bad_answer_traps": [
+      "raw token in logs",
+      "retry without idempotency",
+      "status code ignored",
+      "looks like",
+      "usual checklist",
+      "battle-max-on-suite without proof"
+    ]
+  }
+]
